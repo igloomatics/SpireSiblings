@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鸡煲兄弟</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/sound.js"></script>
+    <script src="js/weapon.js"></script>
+    <script src="js/relic.js"></script>
+    <script src="js/enemy.js"></script>
+</head>
+<div id="tooltip" class="tooltip"></div>
+<body>
+<div id="gameContainer">
+
+    <div id="topBanner">
+        <div class="leftGroup">
+            <span id="className">职业名称</span>
+            <span id="MoneyInfo">💰<span id="coins">0</span></span>
+        </div>
+
+        <div id="waveInfo">
+            第 <span id="wave">1</span> 层 · <span id="waveTime">15</span>s
+        </div>
+
+        <span id="gameTime">⏳<span id="time">0</span>s</span>
+    </div>
+
+
+    <!-- 独立血条 -->
+    <div id="healthBarContainer">
+        <div class="health-bar">
+            <div class="health-bar-bg">
+            <div class="health-bar-fill" id="healthFill"></div>
+            </div>
+            <span class="health-text" id="healthValue">20/20</span>
+        </div>
+    </div>
+
+    <!-- 经验条 -->
+    <div id="expBarContainer">
+        <div class="exp-bar">
+            <div class="exp-bar-bg">
+                <div class="exp-bar-fill" id="expFill"></div>
+            </div>
+            <div>Lv.</div><span class="exp-text" id="level">1</span>
+        </div>
+    </div>
+
+
+    <canvas id="gameCanvas"></canvas>
+        <div id="ui">
+            <div>🔥 增伤 <span id="damageBonus">0</span>%</div>
+            <div>💪 力量 <span id="strength">0</span></div>
+            <div>🎯 精准 <span id="precision">0</span></div>
+            <div>🧠 集中 <span id="focus">0</span></div>
+            <div>🏃 敏捷 <span id="agility">0</span>%</div>
+            <div>💨 攻速 <span id="attackSpeed">1.0x</span></div>
+            <div>💥 暴击率 <span id="critRate">0</span>%</div>
+            <div>📡 范围 <span id="scope">0</div>
+            <div>👟 移速 <span id="moveSpeed">3.0</span></div>
+        </div>
+
+        <div id="weapons">
+            <strong>⚙️ 武器:</strong>
+            <div id="weaponsList" style="margin-top: 8px;"></div>
+        </div>
+
+        <div id="relics" style="
+        position:absolute; top:180px; right:10px;
+        font-size:12px; background:rgba(0,0,0,0.5);
+        padding:10px 15px; border-radius:5px; border:1px solid #0f3460;
+        max-width:200px; word-wrap:break-word;">
+        <strong>🏺 遗物:</strong>
+        <div id="relicsList" style="margin-top:8px;"></div>
+        </div>
+
+        <div id="pauseHint">按 ESC/P 暂停</div>
+
+        <div id="heroMenu">
+        <h2>🧬 选择你的英雄</h2>
+        <p class="subtitle">'哦，你想成为谁?'</p>
+        <div class="heroOptions" id="heroOptions"></div>
+        </div>
+
+
+        <div id="blessingMenu">
+            <div class="blessingContainer">
+                <!-- 左侧：角色图像 + 选项 -->
+                <div class="blessingLeft">
+                    <div class="blessingHeroImage">
+                        <img id="blessingHeroImg" src="./image/jibao.png" ">
+                    </div>
+                    <div class="blessingOptionsContainer">
+                        <div id="blessingOptions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="levelUpMenu">
+            <h2>🎉 升级！</h2>
+            <p>选择一项升级：</p>
+            <div class="upgradeOptions" id="upgradeOptions"></div>
+        </div>
+
+        <div id="shopMenu">
+            <h2>🏪 尖塔商人 🏪</h2>
+            <div class="shopInfo">金币 x<span id="playerCoins">0</span></div>
+            <div class="shopItems" id="shopItems"></div>
+            <button class="shopCloseBtn" onclick="refreshShop()">刷新商品 (5金币)</button>
+            <button class="shopCloseBtn" onclick="closeShop()">关闭商店 (继续游戏)</button>
+        </div>
+
+        <div id="pauseMenu">
+            <h2>⏸️ 已暂停</h2>
+            <button onclick="togglePause()">继续游戏</button>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+
+        <div id="gameOver">
+            <h1>💀 游戏结束</h1>
+            <p>等级: <span id="finalLevel">1</span></p>
+            <p>击杀: <span id="finalKills">0</span></p>
+            <p>存活时间: <span id="finalTime">0</span>s</p>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+    </div>
+<script>
+
+(function () {
+let shown = false;
+window.addEventListener('error', (e) => {
+if (!shown) {
+    shown = true;
+    alert('JS Error: ' + (e.message || e.error));
+    console.error(e.error || e.message, e);
+}
+});
+})();
+
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 900;
+canvas.height = 600;
+
+
+let gameRunning = false;
+let gamePaused = false;
+let frameCount = 0;
+let gameTime = 0;
+let kills = 0;
+let level = 1;
+let experience = 0;
+let coins = 0; // 初始金币0
+let experienceToLevel = 50;
+let enemySpawnRate = 60;//刷怪速度
+let baseEnemyHealth = 30;
+let baseEnemyDamage = 5;
+let baseEnemySpeed = 1;
+let bossSpawned = false;   // 检查第10波是否已生成Boss（只生成一次）
+let bossDefeated = false;  // Boss是否被击杀（第10波不立刻通关，只做标记）
+
+
+let currentWave = 1;
+const maxWaves = 10;
+const waveDurations = [15, 20, 25, 30, 40, 40, 40, 40, 40, 40]; // 每层持续时长
+let waveTimer = waveDurations[0]; // 当前波倒计时（单位：秒）
+let waveOngoing = true;
+let shopRefreshCost = 5;
+
+
+let particles = [];
+// === 统一浮球轨道设置 ===
+const FLOATING_ORBIT_RADIUS = 70;     // 所有球使用相同半径（可改）
+const FLOATING_ORBIT_SPEED  = 0.08;   // 鸡煲的球统一旋转速度
+let floatingOrbitAngle = 0;           // 全局基准角
+let meleeOrbitAngle = 0;             // 旋转剑的基准角
+const MELEE_ROTATION_SPEED = 0.05; 
+
+let damageNumbers = [];
+
+// 毒圈数组
+const poisonZones = [];
+
+// 中毒敌人映射表（记录中毒开始时间）
+const poisonedEnemies = new Map(); // key: enemy对象, value: 中毒开始的帧数
+
+
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    skin: {
+        name: '蓝皮人',
+        main: '#00d4ff',
+        glowInner: 'rgba(0,212,255,0.8)',
+        glowOuter: 'rgba(0,212,255,0)'
+    },
+    radius: 12,
+    health: 20,
+    maxHealth: 20,
+    damageBonus: 0, // 增伤百分比（如20表示+20%）
+    strength: 0,    // 力量
+    precision: 0,   // 精准
+    focus: 0,       // 集中
+    agility: 0,     // 敏捷百分比（如30表示减少30%伤害）
+    critRate: 1,    // 暴击率
+    scope: 0, // 范围
+    attackSpeed: 1.0, // 攻速
+    baseSpeed: 3,    // 移速
+    expBonus: 1, // 经验倍率
+    coinDropChance: 0.3,  // 默认金币爆率
+    speed: 3,
+    weapons: [],
+    relics: [],
+    vx: 0,
+    vy: 0
+};
+
+
+
+
+// 根据 key 装备遗物：支持 unique（最多1个）和 ordinary（可叠加）
+function equipRelicByKey(key) {
+    const tpl = relicTypes[key];
+    if (!tpl) return false;
+
+    player.relics = player.relics || [];
+
+    const category = tpl.category || 'ordinary';
+    const existing = player.relics.find(r => r.key === key);
+
+    // unique：已有就不再添加
+    if (category === 'unique' && existing) {
+        return false;
+    }
+
+    if (existing) {
+        // ordinary：叠层并再次应用被动
+        existing.stackCount = (existing.stackCount || 1) + 1;
+        if (typeof tpl.applyOnPickup === 'function') tpl.applyOnPickup();
+        return true;
+    }
+
+    // 首次获得：入背包并应用被动
+    player.relics.push({
+        key: key,
+        name: tpl.name,
+        desc: tpl.desc,
+        lore: tpl.lore,
+        rarity: tpl.rarity,
+        category,
+        stackCount: 1
+    });
+    if (typeof tpl.applyOnPickup === 'function') tpl.applyOnPickup();
+    return true;
+}
+
+
+// 克隆武器模板并初始化
+function cloneWeaponByKey(key){
+    const tpl = weaponTypes[key];
+    if (!tpl) return null;
+    const w = JSON.parse(JSON.stringify(tpl));
+    w.lastFire = 0;  // 开火节奏计数器
+    w.angle = w.angle || 0;
+    if (w.type === 'melee') {
+        w.baseAngle = 0;
+        w.radius = w.radius || 60;  // ✅ 给默认半径
+    }
+    return w;
+}
+
+
+let enemies = [];
+let bullets = [];
+let drops = [];
+let campfires = [];                 // 场景中的火堆
+const campfireRadius = 90;          // 触发范围半径（像素）
+const campfireHealDelay = 2.0;      // 停留秒数
+const campfireSpawnInterval = 600;  // 尝试刷新的帧间隔（约10秒，60fps）
+const campfireSpawnChance = 0.35;   // 每次尝试生成的概率
+const experienceColor = '#129c50';
+const coinColor = '#ffff00';
+const healthDropColor = '#ff69b4';
+const keys = {};
+document.addEventListener('keydown', (e) => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
+        togglePause();
+    }
+});
+document.addEventListener('keyup', (e) => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+// === 英雄皮肤库 ===
+const HERO_SKINS = [
+{
+    key: 'red', name: '红皮人',
+    main: '#ff4d4d',
+    glowInner: 'rgba(255,77,77,0.8)',
+    glowOuter: 'rgba(255,77,77,0)',
+    desc: '骨张祭启人',
+    weaponKey: 'sword1',
+    relicKeys: ['BurningBlood'] 
+},
+{
+    key: 'green', name: '绿皮人',
+    main: '#4dff88',
+    glowInner: 'rgba(77,255,136,0.8)',
+    glowOuter: 'rgba(77,255,136,0)',
+    desc: '蛊瘴技奇人',
+    weaponKey: 'bounceVial',
+    relicKeys: ['RingOfTheSnake'] 
+},
+{
+    key: 'blue', name: '蓝皮人',
+    main: '#00d4ff',
+    glowInner: 'rgba(0,212,255,0.8)',
+    glowOuter: 'rgba(0,212,255,0)',
+    desc: '故障机器人',
+    weaponKey: 'frostBall',
+    relicKeys: ['CrackedCore'] 
+},
+{
+    key: 'purple', name: '紫皮人',
+    main: '#9966ff',
+    glowInner: 'rgba(153,102,255,0.8)',
+    glowOuter: 'rgba(153,102,255,0)',
+    desc: '孤杖迹气人',
+    weaponKey: 'basicGun',
+    relicKeys: ['PureWater'] 
+}
+];
+
+// 渲染英雄选择菜单
+function initHeroMenu(){
+    const box = document.getElementById('heroOptions');
+    box.innerHTML = '';
+    HERO_SKINS.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'heroOption';
+        div.innerHTML = `
+        <div class="heroSwatch" style="color:${s.main}; background:${s.main}"></div>
+        <div>
+            <div style="font-weight:bold; font-size:14px;">${s.name}</div>
+            <div class="heroMeta">${s.desc || '一位神秘的冒险者'}</div>
+            <div class="heroMeta">初始武器：${(weaponTypes[s.weaponKey]?.name) || '无'}</div>
+        </div>
+        `;
+        div.onclick = () => chooseHero(s);
+        box.appendChild(div);
+    });
+}
+
+function chooseHero(skin){
+    console.log('选择英雄:', skin.name);
+    
+    player.skin = {
+        name: skin.name,
+        main: skin.main,
+        glowInner: skin.glowInner,
+        glowOuter: skin.glowOuter
+    };
+    
+    // 先关英雄选择
+    document.getElementById('heroMenu').style.display = 'none';
+    document.getElementById('className').textContent = skin.name;
+
+    // 清空现有武器和遗物
+    player.weapons = [];
+    player.relics = [];
+
+    // 自动配备初始武器
+    if (skin.weaponKey){
+        const starter = cloneWeaponByKey(skin.weaponKey);
+        if (starter){
+            starter.lastFire = 0;
+            player.weapons.push(starter);
+            console.log('添加初始武器:', starter.name);
+        }
+    }
+    
+    // 自动配备初始遗物
+    if (Array.isArray(skin.relicKeys)) {
+        skin.relicKeys.forEach(k => {
+            console.log('添加初始遗物:', k);
+            equipRelicByKey(k);
+        });
+    }
+    
+    updateUI(); // 立刻刷新UI
+    console.log('玩家武器:', player.weapons);
+    console.log('玩家遗物:', player.relics);
+
+    // 显示祝福菜单
+    showBlessingMenu(`./image/${skin.key}.png`);
+    document.getElementById('blessingMenu').style.display = 'block';
+    console.log('显示祝福菜单');
+}
+
+
+const blessingOptions = [
+    { 
+        name: '[  获得 50金币  ]', 
+        type: 'blessing',
+        effects: () => {
+            coins += 50;
+        }
+    },
+    { 
+        name: '[  最大生命值 +10  ]', 
+        type: 'blessing',
+        effects: () => {
+            player.maxHealth += 10;
+            player.health += 10;
+        }
+    },
+];
+
+// 每回合结束后的效果清算
+function onWaveEndEffects() {
+    // 燃烧之血：波次结束回血 10（唯一遗物，不叠加）
+    if (player.relics && player.relics.some(r => r.key === 'BurningBlood')) {
+        player.health = Math.min(player.maxHealth, player.health + 10);
+        // 可选：飘个绿色 +10（如果不想飘字，删掉这行）
+        if (typeof createDamageNumber === 'function') {
+            createDamageNumber(player.x, player.y - 22, +10, false);
+        }
+    }
+}
+
+
+// ✅ 一键清场：怪物、掉落、子弹（可选粒子/火堆）
+function clearBattlefield(options = {}) {
+    const { keepParticles = false, keepCampfires = false } = options;
+
+    enemies.length = 0;   // 清怪
+    drops.length = 0;     // 清掉落（金币/经验/回血包等）
+    bullets.length = 0;   // 清子弹
+
+    if (!keepCampfires) campfires.length = 0; // 需要的话也清火堆
+    if (!keepParticles) particles.length = 0; // 需要的话也清粒子效果
+
+    // 如果有 Boss 标记（你之前加过），在非第10波或进入下一波时可顺便复位
+    if (typeof bossSpawned !== 'undefined') bossSpawned = false;
+    if (typeof bossDefeated !== 'undefined') bossDefeated = false;
+}
+
+
+function showBlessingMenu(heroImageUrl) {
+    const menu = document.getElementById('blessingMenu');
+    const heroImg = document.getElementById('blessingHeroImg');
+    const blessingOptionsDiv = document.getElementById('blessingOptions');
+    
+    // 设置背景图片 - 修复路径
+    menu.style.backgroundImage = `./slaythespire.jpeg`;
+    
+    // 设置英雄形象
+    if (heroImg && heroImageUrl) heroImg.src = heroImageUrl;
+    
+    // 初始化选项
+    blessingOptionsDiv.innerHTML = '';
+    
+    blessingOptions.forEach((option, index) => {
+        const div = document.createElement('div');
+        div.className = 'blessingUpgradeOption';
+        div.innerHTML = `
+            <div style="flex: 1;">
+                <h4>${option.name}</h4>
+            </div>
+        `;
+        div.onclick = () => selectBlessing(option);
+        blessingOptionsDiv.appendChild(div);
+    });
+    
+    updateUI();
+    
+    // 显示菜单
+    menu.style.display = 'flex';
+}
+
+function selectBlessing(blessing) {
+    const selectedOptions = document.querySelectorAll('.blessingUpgradeOption');
+    selectedOptions.forEach(opt => opt.classList.remove('selected'));
+    
+    // 获取点击的选项并添加selected类
+    event.currentTarget.classList.add('selected');
+    
+    // 延迟执行效果，让用户看到选中状态
+    setTimeout(() => {
+        blessing.effects();
+        document.getElementById('blessingMenu').style.display = 'none';
+        gameRunning = true;
+        updateUI();
+        gameLoop();
+    }, 300);
+}
+
+
+
+function createDamageNumber(x, y, damage, isCrit = false, style = null) {
+    damageNumbers.push({
+        x: x,
+        y: y,
+        damage: Math.ceil(damage),
+        life: 60,
+        maxLife: 60,
+        isCrit: isCrit,
+        style: style,            // 新增：样式标记（'playerHurt' 用于玩家受伤）
+        vx: (Math.random() - 0.5) * 2,
+        vy: -2
+    });
+}
+
+
+function updateDamageNumbers() {
+    for (let i = damageNumbers.length - 1; i >= 0; i--) {
+        const num = damageNumbers[i];
+        num.life--;
+        num.x += num.vx;
+        num.y += num.vy;
+        num.vy += 0.05;
+
+        if (num.life <= 0) {
+            damageNumbers.splice(i, 1);
+        }
+    }
+}
+
+function drawDamageNumbers() {
+    damageNumbers.forEach(num => {
+        const alpha = num.life / num.maxLife;
+        ctx.globalAlpha = alpha;
+
+        // 颜色与样式
+        let fill = '#ffffff';
+        let font = 'bold 16px Arial';
+        if (num.isCrit) {
+            fill = '#ffd700';            // 暴击改为黄色
+            font = 'bold 20px Arial';
+        } else if (num.style === 'playerHurt') {
+            fill = '#ff0000';            // 玩家受伤显示红色
+            font = 'bold 18px Arial';
+        } else if (num.style === 'poisoned'){
+            fill = '#66ff33';            // 中毒显示绿色
+            font = 'bold 16px Arial';
+        }
+
+        ctx.fillStyle = fill;
+        ctx.font = font;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+        ctx.strokeText(num.damage, num.x, num.y);
+        ctx.fillText(num.damage, num.x, num.y);
+
+        ctx.globalAlpha = 1;
+    });
+}
+
+
+function calculateDamage(baseDamage,weaponType = null) {
+    const isCrit = Math.random() * 100 < player.critRate;
+    // 应用增伤百分比
+        const critMultipliers = {
+            knife: 3.0,       // 小刀暴击 3 倍
+            shotgun: 2.0,     // 霰弹枪 2.5 倍
+            laser: 1.5,       // 激光枪 1.5 倍
+            sword1: 2.0,      // 旋转剑 2.2 倍
+            lightningBall: 2.0, // 闪电球普通 2 倍
+            frostBall: 2.0,
+            shadowBall: 2.0,
+            basicGun: 2.0,     // 默认 2 倍
+            poisonVial: 1.0
+        };
+    let finalDamage = baseDamage * (1 + player.damageBonus / 100);
+    if (isCrit) {
+        const multiplier = critMultipliers[weaponType] || 2.0; // 若无定义，默认2倍
+        finalDamage *= multiplier;
+    }
+    return { damage: finalDamage, isCrit: isCrit };
+}
+
+
+function createLightningEffect(x1, y1, x2, y2) {
+    playLightningSound();
+    
+    const segments = 8;
+    const points = [];
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = x1 + (x2 - x1) * t;
+        const y = y1 + (y2 - y1) * t;
+        const offsetX = (Math.random() - 0.5) * 20;
+        const offsetY = (Math.random() - 0.5) * 20;
+        points.push({ x: x + offsetX, y: y + offsetY });
+    }
+    
+    particles.push({
+        type: 'lightning',
+        points: points,
+        life: 15,
+        maxLife: 15,
+        color: '#ffff00'
+    });
+
+    for (let i = 0; i < 10; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 3;
+        particles.push({
+            type: 'spark',
+            x: x2,
+            y: y2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 20,
+            maxLife: 20,
+            size: 2 + Math.random() * 2,
+            color: '#ffff00'
+        });
+    }
+}
+
+function createKillEffect(x, y, color) {
+    for (let i = 0; i < 15; i++) {
+        const angle = (Math.PI * 2 * i) / 15;
+        const speed = 2 + Math.random() * 3;
+        particles.push({
+            type: 'explosion',
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 30,
+            maxLife: 30,
+            size: 3 + Math.random() * 3,
+            color: color
+        });
+    }
+}
+
+function createPickupEffect(x, y, color) {
+    for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 * i) / 8;
+        const speed = 1 + Math.random() * 2;
+        particles.push({
+            type: 'sparkle',
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1,
+            life: 25,
+            maxLife: 25,
+            size: 2 + Math.random() * 2,
+            color: color
+        });
+    }
+}
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+        particle.life--;
+
+        if (particle.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+        }
+
+        if (particle.type === 'spark' || particle.type === 'explosion' || particle.type === 'sparkle') {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += 0.1;
+        }
+    }
+}
+
+function drawParticles() {
+    particles.forEach(particle => {
+        const alpha = particle.life / particle.maxLife;
+        
+        if (particle.type === 'lightning') {
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = particle.color;
+            ctx.lineWidth = 3;
+            ctx.shadowColor =
+            particle.color;
+            ctx.shadowBlur = 15;
+            
+            ctx.beginPath();
+            ctx.moveTo(particle.points[0].x, particle.points[0].y);
+            for (let i = 1; i < particle.points.length; i++) {
+                ctx.lineTo(particle.points[i].x, particle.points[i].y);
+            }
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+        } else {
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = particle.color;
+            ctx.shadowColor = particle.color;
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+        }
+    });
+}
+
+function drawPlayer(x, y) {
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, player.radius + 5);
+    gradient.addColorStop(0, player.skin.glowInner);  // 原来是 rgba(0,212,255,0.8)
+    gradient.addColorStop(1, player.skin.glowOuter);  // 原来是 rgba(0,212,255,0)
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, player.radius + 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = player.skin.main;                 // 原来是 #00d4ff
+    ctx.beginPath();
+    ctx.arc(x, y, player.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';       // 高光保留
+    ctx.beginPath();
+    ctx.arc(x - 3, y - 3, player.radius * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+
+function drawLightningBall(weapon, x, y) {
+    ctx.fillStyle = weapon.color;
+    ctx.shadowColor = weapon.color;
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.8;
+    for (let i = 0; i < 4; i++) {
+        const angle = (Math.random() - 0.5) * Math.PI;
+        const len = 10 + Math.random() * 6;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawFrostBall(weapon, x, y) {
+    ctx.fillStyle = weapon.color;
+    ctx.shadowColor = weapon.color;
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + frameCount * 0.02;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * 10, y + Math.sin(angle) * 10);
+        ctx.stroke();
+    }
+    // 追加：冰雾呼吸边缘
+    ctx.globalAlpha = 0.6 + 0.3 * Math.sin(frameCount * 0.1);
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, 12 + Math.sin(frameCount * 0.12) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+}
+
+function drawShadowBall(weapon, x, y) {
+    ctx.fillStyle = weapon.color;
+    ctx.shadowColor = weapon.color;
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.arc(x, y, 12 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // 追加：逐渐扩散的暗影涟漪
+    const rippleR = 10 + (frameCount % 30) * 0.8;
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, rippleR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // 追加：抖动触须
+    ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = weapon.color;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 8; i++) {
+    const a = i * (Math.PI * 2 / 8) + frameCount * 0.05;
+    const len = 10 + Math.sin(frameCount * 0.15 + i) * 3;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
+    ctx.stroke();
+}
+ctx.globalAlpha = 1;
+
+}
+
+function drawKnifeProjectile(b) {
+    const stroke = '#2b2b2b';        // 深灰描边
+    const bladeFill = '#cfcfcf';     // 刃：浅灰
+    const handleFill = '#5e3b2e';    // 手柄：棕
+
+    const L = b.bladeLen || 22;
+    const W = b.bladeWidth || 7;
+    const tipL = b.tipLen || 8;
+    const hL = b.handleLen || 10;
+    const hW = b.handleWidth || 6;
+
+    // 小刀几何：以 (b.x,b.y) 为中心稍微靠后，使刀尖在前
+    // 让刀尖大约位于弹体中心偏前 1/3 处，直觉更像“飞刀”
+    const offset = L * 0.35;
+
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(Math.atan2(b.vy, b.vx)); // 按速度方向朝前
+
+    // 手柄（在后侧）
+    ctx.fillStyle = handleFill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(-offset - hL, -hW / 2, hL, hW);
+    ctx.fill();
+    ctx.stroke();
+
+    // 刃：矩形 + 三角尖（朝前）
+    ctx.fillStyle = bladeFill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // 矩形段
+    ctx.moveTo(-offset, -W / 2);
+    ctx.lineTo(L - tipL - offset, -W / 2);
+    // 三角尖
+    ctx.lineTo(L - offset, 0);
+    ctx.lineTo(L - tipL - offset, W / 2);
+    // 回到矩形底边
+    ctx.lineTo(-offset, W / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 简单高光（左侧一点点）
+    const grad = ctx.createLinearGradient(-offset - 2, 0, L - offset, 0);
+    grad.addColorStop(0.0, 'rgba(255,255,255,0.25)');
+    grad.addColorStop(0.3, 'rgba(255,255,255,0.06)');
+    grad.addColorStop(1.0, 'rgba(255,255,255,0.00)');
+    ctx.fillStyle = grad;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillRect(-offset, -W / 2, L, W);
+    ctx.globalCompositeOperation = 'source-over';
+
+    ctx.restore();
+}
+
+
+function drawSword(x, y, angle, weapon) {
+    // 接收已计算好的剑的位置 (x,y) 和朝向 angle
+    const L = weapon.radius - 5;  // ✅ 兜底默认值
+    const W = 10, tipL = 12, guardW = 14, guardH = 6, handleL = 12, handleW = 6;
+
+    ctx.save();
+    ctx.translate(x, y);        // ✅ 平移到剑的位置（不是玩家中心）
+    ctx.rotate(angle);          // ✅ 旋转到剑的朝向
+
+    // 护手
+    ctx.fillStyle = '#9a9a9a';
+    ctx.strokeStyle = '#2b2b2b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(-guardW/2, -guardH/2, guardW, guardH);
+    ctx.fill();
+    ctx.stroke();
+
+    // 握柄
+    ctx.fillStyle = '#5e3b2e';
+    ctx.beginPath();
+    ctx.rect(-(guardW/2) - handleL, -handleW/2, handleL, handleW);
+    ctx.fill();
+    ctx.stroke();
+
+    // 剑身
+    ctx.fillStyle = '#cfcfcf';
+    ctx.beginPath();
+    ctx.moveTo(0, -W/2);
+    ctx.lineTo(L - tipL, -W/2);
+    ctx.lineTo(L, 0);
+    ctx.lineTo(L - tipL, W/2);
+    ctx.lineTo(0, W/2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+
+
+
+// 随机生成一个火堆（不贴边）
+function spawnCampfire() {
+    if (campfires.length > 3) return;
+    const padding = 80;
+    const x = padding + Math.random() * (canvas.width - padding * 2);
+    const y = padding + Math.random() * (canvas.height - padding * 2);
+
+    campfires.push({
+        x, y,
+        radius: campfireRadius,
+        // 玩家是否在范围内的停留计时（秒）
+        stayTimer: 0,
+        // 一个简单的动画用角度
+        t: Math.random() * Math.PI * 2,
+        // 是否已经触发过治疗（触发一次就销毁）
+        consumed: false,
+        health: 50,
+        maxHealth: 50,
+        hitRadius: 16, // 用于子弹/近战碰撞
+    });
+}
+
+// 更新火堆（判定玩家停留2s并治疗）
+function updateCampfires(dt) {
+    for (let i = campfires.length - 1; i >= 0; i--) {
+        const f = campfires[i];
+        f.t += dt * 3; // 仅作小幅动画
+        // （这里不再做停留回血判定）
+        // 如果以后要加其它行为，可在此扩展
+    }
+}
+          
+function updatePoisonZones() {
+    // 更新毒圈
+    for (let i = poisonZones.length - 1; i >= 0; i--) {
+        const zone = poisonZones[i];
+        
+        // 检查是否过期
+        if (frameCount - zone.createdAt > zone.duration) {
+            poisonZones.splice(i, 1);
+            continue;
+        }
+        
+        // 检测敌人是否在毒圈内
+        enemies.forEach(enemy => {
+            const dist = Math.hypot(enemy.x - zone.x, enemy.y - zone.y);
+            if (dist < zone.radius + enemy.radius) {
+                // 标记敌人为中毒状态
+                if (!poisonedEnemies.has(enemy)) {
+                    poisonedEnemies.set(enemy, frameCount);
+                }
+            }
+        });
+    }
+    
+    // 更新中毒敌人
+    poisonedEnemies.forEach((startFrame, enemy) => {
+        const elapsedFrames = frameCount - startFrame;
+        
+        // 每50帧（5/6秒）造成6点伤害
+        if (elapsedFrames % 50 === 0 && elapsedFrames > 0) {
+            const basePoisonDamage = 6;
+            // 加上玩家加成（可以和普通攻击逻辑保持一致）
+            const totalPoisonDamage = basePoisonDamage * (1 + player.damageBonus / 100);
+            // 计算结果（带暴击或技能触发逻辑）
+            const result = calculateDamage(totalPoisonDamage, 'poisonVial');
+            enemy.health -= result.damage;
+            createDamageNumber(enemy.x, enemy.y - 10, result.damage, false, 'poisoned');
+        }
+        
+        // 5秒后移除中毒状态（300帧）
+        if (elapsedFrames > 300) {
+            poisonedEnemies.delete(enemy);
+        }
+    });
+    
+    // 清理已死亡的敌人
+    const deadEnemies = Array.from(poisonedEnemies.keys()).filter(e => 
+        !enemies.includes(e)
+    );
+    deadEnemies.forEach(e => poisonedEnemies.delete(e));
+}
+
+function drawPoisonZones() {
+    poisonZones.forEach(zone => {
+        const age = frameCount - zone.createdAt;
+        const opacity = 1 - (age / zone.duration); // 逐渐消失
+        
+        ctx.save();
+        ctx.globalAlpha = opacity * 0.4;
+        
+        // 绘制毒圈
+        ctx.fillStyle = '#498e24';
+        ctx.beginPath();
+        ctx.arc(zone.x, zone.y, zone.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 外圈边界
+        ctx.strokeStyle = '#498e24';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        ctx.restore();
+    });
+}
+
+
+// 绘制火堆
+function drawCampfires() {
+    campfires.forEach(f => {
+        // 地面光圈
+        const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
+        grad.addColorStop(0, 'rgba(255, 149, 0, 0.10)');
+        grad.addColorStop(1, 'rgba(255, 149, 0, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 火焰主体（简单跳动）
+        const flameR = 10 + Math.sin(f.t) * 2;
+        ctx.fillStyle = '#ff922b';
+        ctx.shadowColor = '#ff922b';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y - 6, flameR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // ✅ 火堆血条
+        const barW = 26, barH = 4;
+        ctx.fillStyle = 'red';
+        ctx.fillRect(f.x - barW/2, f.y - 22, barW, barH);
+        ctx.fillStyle = 'lime';
+        ctx.fillRect(f.x - barW/2, f.y - 22, barW * (f.health / f.maxHealth), barH);
+    });
+}
+
+
+function updateDrops() {
+    for (let i = drops.length - 1; i >= 0; i--) {
+        const drop = drops[i];
+        const dx = player.x - drop.x;
+        const dy = player.y - drop.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 120) {
+            const speed = 8;
+            drop.x += (dx / dist) * speed;
+            drop.y += (dy / dist) * speed;
+        }
+
+        if (dist < 25) {
+            playPickupSound();
+            createPickupEffect(drop.x, drop.y, drop.color);
+            
+            if (drop.type === 'experience') {
+                experience += drop.value;
+            } else if (drop.type === 'coin') {
+                coins += drop.value;
+            } else if (drop.type === 'health') {
+                player.health = Math.min(player.maxHealth, player.health + drop.value);
+            }
+            drops.splice(i, 1);
+            continue;
+        }
+    }
+
+    if (experience >= experienceToLevel) {
+        levelUp();
+        player.maxHealth += 5;
+        player.health += 5;
+    }
+}
+
+const upgradePool = [
+    { name: '最大生命值 +12', type: 'health', value: 12, desc: '增加最大生命值并回复' },
+    { name: '攻速 +0.1x', type: 'attackSpeed', value: 0.1, desc: '提升攻击速度' },
+    { name: '移速 +0.5', type: 'speed', value: 0.5, desc: '提升移动速度' },
+    { name: '暴击率 +8%', type: 'critRate', value: 8, desc: '提升暴击几率，暴击造成2倍伤害' },
+    { name: '增伤 +8%', type: 'damageBonus', value: 8, desc: '所有伤害 +8%' },
+    { name: '力量 +6', type: 'strength', value: 6, desc: '近战武器 +6 伤害' },
+    { name: '精准 +4', type: 'precision', value: 4, desc: '远程武器 +4 伤害' },
+    { name: '集中 +5', type: 'focus', value: 5, desc: '浮球武器 +5 伤害' },
+    { name: '敏捷 +5%', type: 'agility', value: 5, desc: '减少5%承受伤害' },
+
+];
+
+function levelUp() {
+    gamePaused = true;
+    experience -= experienceToLevel;
+    level++;
+    experienceToLevel = Math.floor(experienceToLevel * 1.3);
+
+    const options = [];
+    const poolCopy = [...upgradePool];
+    
+    for (let i = 0; i < 4 && poolCopy.length > 0; i++) {
+        const index = Math.floor(Math.random() * poolCopy.length);
+        options.push(poolCopy[index]);
+        poolCopy.splice(index, 1);
+    }
+
+    const upgradeOptionsDiv = document.getElementById('upgradeOptions');
+    upgradeOptionsDiv.innerHTML = '';
+    
+    options.forEach((option, index) => {
+        const div = document.createElement('div');
+        div.className = 'upgradeOption';
+        div.innerHTML = `
+            <div class="upgradeNumber">${index + 1}</div>
+            <div class="upgradeContent">
+                <h3>${option.name}</h3>
+                <p>${option.desc}</p>
+            </div>
+        `;
+        div.onclick = () => selectUpgrade(option);
+        upgradeOptionsDiv.appendChild(div);
+    });
+
+    document.getElementById('levelUpMenu').style.display = 'block';
+}
+
+function selectUpgrade(option) {
+    if (option.type === 'health') {
+        player.maxHealth += option.value;
+        player.health += option.value;
+    } else if (option.type === 'attackSpeed') {
+        player.attackSpeed += option.value;
+    } else if (option.type === 'speed') {
+        player.baseSpeed += option.value;
+        player.speed = player.baseSpeed;
+    } else if (option.type === 'critRate') {
+        player.critRate = Math.min(100, player.critRate + option.value);
+    }else if (option.type === 'damageBonus') {
+        player.damageBonus += option.value;
+    } else if (option.type === 'strength') {
+        player.strength += option.value;
+    } else if (option.type === 'precision') {
+        player.precision += option.value;
+    } else if (option.type === 'focus') {
+        player.focus += option.value;
+    } else if (option.type === 'agility') {
+        player.agility += option.value;
+    }
+    document.getElementById('levelUpMenu').style.display = 'none';
+    gamePaused = false;
+    updateUI();
+}
+
+function pickItemByRarity(items, rarityWeights) {
+    // 动态权重（随等级变化）
+
+    // 按稀有度分组
+    const pools = {
+        common: items.filter(i => i.rarity === 'common'),
+        rare: items.filter(i => i.rarity === 'rare'),
+        legendary: items.filter(i => i.rarity === 'legendary')
+    };
+
+    // 随机抽取稀有度
+    const total = rarityWeights.common + rarityWeights.rare + rarityWeights.legendary;
+    let rand = Math.random() * 100;
+
+
+    let chosenPool;
+    if (rand < rarityWeights.legendary) {
+        chosenPool = pools.legendary;
+    } else if (rand < rarityWeights.legendary + rarityWeights.rare) {
+        chosenPool = pools.rare;
+    } else {
+        chosenPool = pools.common;
+    }
+
+    
+
+    // 如果该稀有度没有物品，降级处理
+    if (chosenPool.length === 0) {
+        // 尝试降级：传说 → 稀有 → 普通
+        if (pools.rare.length > 0) chosenPool = pools.rare;
+        else if (pools.common.length > 0) chosenPool = pools.common;
+        else return items[0]; // 保底
+    }
+
+    // 从池子里随机选一个
+    return chosenPool[Math.floor(Math.random() * chosenPool.length)];
+}
+
+
+function generateShopItems() {
+    const shopItems = [];
+    const itemKeys = Object.keys(weaponTypes);  // 获取武器类型键名
+    const relicKeys = Object.keys(relicTypes).filter(k => relicTypes[k].shopAvailable !== false);
+// 获取遗物类型键名，不出售特定遗物
+
+
+    const rarityWeights = {
+        common: 80 - level,
+        rare: 15 + 0.7 * level,
+        legendary: 5 + 0.3 * level
+    };
+    
+
+    let priceMultiplier = 1;
+    if (currentWave >= 1 && currentWave <= 2) priceMultiplier = 0.5;
+    else if (currentWave >= 3 && currentWave <= 5) priceMultiplier = 0.8;
+    else if (currentWave >= 6 && currentWave <= 7) priceMultiplier = 1.0;
+    else if (currentWave >= 8 && currentWave <= 9) priceMultiplier = 1.5;
+    else if (currentWave >= 10) priceMultiplier = 1.5; // 或者自定义
+
+
+    for (let i = 0; i < 4; i++) {
+        let isRelic = Math.random() < 0.5;  // 50% 概率生成遗物
+        let item, key, rarity;
+
+        if (isRelic) {
+            const availableRelics = relicKeys.map(k => ({
+                key: k,
+                ...relicTypes[k]
+            }));
+            item = pickItemByRarity(availableRelics, rarityWeights);
+            key = item.key;
+            rarity = item.rarity || 'common';
+        } else {
+            // ===== 抽取武器 =====
+            const availableWeapons = itemKeys.map(k => ({
+                key: k,
+                ...weaponTypes[k]
+            }));
+            item = pickItemByRarity(availableWeapons, rarityWeights);
+            key = item.key;
+            rarity = item.rarity || 'common';
+        }
+
+        const finalCost = Math.round(item.cost * priceMultiplier);
+
+        shopItems.push({
+            ...item,
+            key,
+            rarity,
+            cost: finalCost,
+            isRelic
+        });
+    }
+
+    return shopItems;  // 返回商品数组
+}
+
+// ===== Tooltip 核心 =====
+const tooltipEl = document.getElementById('tooltip');
+let tooltipVisible = false;
+
+function showTooltip(html) {
+    tooltipEl.innerHTML = html;
+    tooltipEl.style.display = 'block';
+    tooltipVisible = true;
+}
+function hideTooltip() {
+    tooltipEl.style.display = 'none';
+    tooltipVisible = false;
+}
+document.addEventListener('mousemove', (e) => {
+    if (!tooltipVisible) return;
+    const pad = 12;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const left = Math.min(e.clientX + pad, vw - tooltipEl.offsetWidth - 8);
+    const top  = Math.min(e.clientY + pad, vh - tooltipEl.offsetHeight - 8);
+    tooltipEl.style.left = left + 'px';
+    tooltipEl.style.top  = top + 'px';
+});
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtWeaponTip(w){
+    const typeMap = { melee:'近战', ranged:'远程', floating:'浮球' };
+    const rows = [];
+    rows.push(`<h4>${esc(w.name||'武器')}</h4>`);
+    rows.push(`<div class="muted">${esc(w.desc || '一件趁手的武器')}</div>`);
+    rows.push(`<div class="tag">类型：${esc(typeMap[w.type]||w.type||'未知')}　稀有度：${esc(w.rarity||'common')}</div>`);
+    if (w.damage!=null) rows.push(`伤害：<span class="num">${esc(w.damage)}</span>`);
+    if (w.fireRate!=null) rows.push(`攻速周期：<span class="num">${esc(w.fireRate)}</span> 帧`);
+    if (w.range!=null) rows.push(`射程：<span class="num">${esc(w.range)}</span>`);
+    if (w.pierce!=null) rows.push(`穿透：<span class="num">${esc(w.pierce)}</span>`);
+    if (w.radius!=null && w.type==='melee') rows.push(`半径：<span class="num">${esc(w.radius)}</span>`);
+    if (w.floatingRadius!=null && w.type==='floating') rows.push(`轨道半径：<span class="num">${esc(w.floatingRadius)}</span>`);
+    return rows.join('<br>');
+}
+function fmtRelicTip(r){
+    const rows = [];
+    const tag = (r.category==='unique') ? '唯一' : '普通';
+    const stack = r.stackCount && r.stackCount>1 ? ` ×${r.stackCount}` : '';
+    rows.push(`<h4>${esc(r.name||'遗物')}</h4>`);
+    rows.push(`<div class="muted">${esc(r.desc || r.lore || '神秘的遗物')}</div>`);
+    rows.push(`<div class="tag">类型：${tag}${stack}　稀有度：${esc(r.rarity || 'common')}</div>`);
+    return rows.join('<br>');
+}
+
+// 事件委托（给容器只绑定一次）
+function bindTooltipDelegation(container){
+    if (!container || container.__tooltipBound) return;
+    container.addEventListener('mouseover', (e) => {
+        const t = e.target.closest('[data-tip-html]');
+        if (!t || !container.contains(t)) return;
+        showTooltip(t.getAttribute('data-tip-html'));
+    });
+    container.addEventListener('mouseout', (e) => {
+        const t = e.target.closest('[data-tip-html]');
+        const rel = e.relatedTarget;
+        if (t && (!rel || !t.contains(rel))) hideTooltip();
+    });
+    container.__tooltipBound = true;
+}
+
+
+
+function openShop() {
+    gamePaused = true;
+    document.getElementById('pauseMenu').style.display = 'none';
+    document.getElementById('shopMenu').style.display = 'block';
+
+    // 每次打开都刷新商品（从生成函数获取）
+    const shopItems = generateShopItems();  // 获取生成的商品列表
+    const shopItemsDiv = document.getElementById('shopItems');
+    shopItemsDiv.innerHTML = '';  // 清空当前的商品展示内容
+
+    // 更新金币数目
+    document.getElementById('playerCoins').textContent = coins;
+
+    // 渲染商店物品
+    shopItems.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = `shopItem ${item.rarity}`;
+
+        let rarityText = '普通';
+        if (item.rarity === 'rare') rarityText = '稀有 (蓝)';
+        if (item.rarity === 'legendary') rarityText = '传说 (金)';
+
+        div.innerHTML = `
+            <h3>${item.name}${item.isRelic ? '（遗物）' : ''}</h3>
+            <p>${item.desc || (item.isRelic ? '神秘的遗物' : '一种有用的武器')}</p>
+            ${item.lore ? `<p class="lore">${item.lore}</p>` : ''}
+            <div class="price">价格：${item.cost} 金币</div>
+            <div class="rarity">稀有度：${rarityText}</div>
+        `;
+
+        // 余额不足时禁用点击和改变样式
+        if (coins < item.cost) {
+            div.style.opacity = '0.6';
+            div.style.filter = 'grayscale(30%)';
+            div.style.cursor = 'not-allowed';
+        }
+
+        // 点击购买商品
+        div.onclick = () => {
+            if (coins < item.cost) {
+                alert('你的钱不够啊！');
+                return;
+            }
+            buyItem(item);  // 调用购买函数
+        };
+        shopItemsDiv.appendChild(div);  // 将商品渲染到页面上
+    });
+}
+
+function buyItem(item) {
+    if (coins >= item.cost) {
+        coins -= item.cost;
+        playPickupSound();
+        document.getElementById('playerCoins').textContent = coins;
+
+        if (item.isRelic) {
+            // 🎁 购买遗物
+            const relic = relicTypes[item.key];
+            if (relic && relic.applyOnPickup) relic.applyOnPickup();
+
+            player.relics.push({
+                key: item.key,
+                name: item.name,
+                desc: item.desc,
+                rarity: item.rarity
+            });
+        } else {
+            // 🔫 购买武器
+            const newWeapon = JSON.parse(JSON.stringify(weaponTypes[item.key]));
+            newWeapon.lastFire = 0;
+            player.weapons.push(newWeapon);
+        }
+
+        updateUI();
+        openShop(); // 刷新商店
+    } else {
+        alert('你的钱不够啊！');
+    }
+}
+
+function closeShop() {
+    document.getElementById('shopMenu').style.display = 'none';
+    gamePaused = false;
+    if (!waveOngoing && currentWave < maxWaves) {
+        currentWave++;
+        waveTimer = waveDurations[currentWave - 1];
+        waveOngoing = true;
+    } else if (currentWave >= maxWaves) {
+        // 游戏结束判断：你也可以改成Boss战等
+        alert("所有波次完成！游戏胜利！");
+        gameRunning = false;
+    }
+}
+
+function refreshShop() {
+    if (coins >= shopRefreshCost) {
+        coins -= shopRefreshCost;
+        document.getElementById('playerCoins').textContent = coins;
+        openShop(); // 重新打开商店，刷新商品
+    } else {
+        alert("金币不足，无法刷新！");
+    }
+}
+
+function updateUI() {
+    // 更新血条
+    // if (!player) return;
+    // 计算血量百分比
+    const healthPercent = player.health / player.maxHealth;
+
+    // 取得血条填充元素和文字
+    const healthBarFill = document.getElementById('healthFill');  // ✅ 新ID
+    const healthText = document.getElementById('healthValue');    // ✅ 新ID
+
+    // 更新样式与文字
+    if (healthBarFill) {
+        healthBarFill.style.width = `${healthPercent * 100}%`;
+    }
+    if (healthText) {
+        healthText.textContent = `${Math.ceil(player.health)}/${player.maxHealth}`;
+    }
+
+    // ====== 经验条更新 ======
+    const expPercent = Math.min(1, experience / experienceToLevel);
+    const expBarFill = document.getElementById('expFill');
+    const expText = document.getElementById('level');  // 你想显示等级的地方
+
+    if (expBarFill) expBarFill.style.width = `${expPercent * 100}%`;
+    if (expText) expText.textContent = `${level}`;  // 显示等级
+
+    
+    document.getElementById('damageBonus').textContent = player.damageBonus;
+    document.getElementById('strength').textContent = player.strength;
+    document.getElementById('precision').textContent = player.precision;
+    document.getElementById('focus').textContent = player.focus;
+    document.getElementById('agility').textContent = player.agility;
+    document.getElementById('critRate').textContent = player.critRate;
+    document.getElementById('attackSpeed').textContent = player.attackSpeed.toFixed(1) + 'x';
+    document.getElementById('moveSpeed').textContent = player.baseSpeed.toFixed(1);
+    //document.getElementById('level').textContent = level;
+    //document.getElementById('kills').textContent = kills;
+    //document.getElementById('experience').textContent = experience;
+    //document.getElementById('experienceNeeded').textContent = experienceToLevel;
+    document.getElementById('coins').textContent = coins;
+    document.getElementById('time').textContent = Math.floor(gameTime);
+    document.getElementById('wave').textContent = currentWave;
+    document.getElementById('waveTime').textContent = waveTimer;
+
+
+    // ⚙️ 武器列表（悬浮说明）
+    const weaponsListEl = document.getElementById('weaponsList');
+    const weaponItems = (player.weapons || []).filter(w => w && w.name);
+    weaponsListEl.innerHTML = weaponItems.length
+    ? weaponItems.map(w => {
+        const tip = fmtWeaponTip(w).replace(/"/g,'&quot;'); // 放在 data-* 里要转义 "
+        return `<div class="weaponItem" data-tip-html="${tip}">• ${esc(w.name)}</div>`;
+        }).join('')
+    : '<div style="color:#888">(暂无武器)</div>';
+    bindTooltipDelegation(weaponsListEl);
+
+    // 🏺 遗物列表（显示唯一/叠层 + 悬浮说明）
+    const relicsList = document.getElementById('relicsList');
+    if (relicsList) {
+    relicsList.innerHTML = player.relics.length
+        ? player.relics.map(r => {
+            const stackText = r.stackCount && r.stackCount>1 ? ` ×${r.stackCount}` : '';
+            const tag = r.category === 'unique' ? ' [唯一]' : '';
+            const tip = fmtRelicTip(r).replace(/"/g,'&quot;');
+            return `<div class="relicItem" data-tip-html="${tip}">• ${esc(r.name)}${stackText}${tag}</div>`;
+        }).join('')
+        : '<div style="color:#888">（暂无）</div>';
+    bindTooltipDelegation(relicsList);
+    }
+
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPoisonZones();
+    drawParticles();
+    drawCampfires();
+    
+
+    drops.forEach(drop => {
+        ctx.fillStyle = drop.color;
+        ctx.shadowColor = drop.color;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(drop.x, drop.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    });
+
+    bullets.forEach(bullet => {
+        if (bullet.type === 'knife') {
+            // 小刀：用精致的刀形绘制
+            drawKnifeProjectile(bullet);
+        } else {
+            // 其它子弹仍然画圆点光球
+            ctx.fillStyle = bullet.color;
+            ctx.shadowColor = bullet.color;
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    });
+
+    ctx.imageSmoothingQuality = 'low'; // 禁用图像平滑
+
+    enemies.forEach(enemy => {
+        let img = enemyImages[enemy.type];
+
+        if (enemy.frozen) {
+            const frozenKey = enemy.type + 'Frozen';
+            if (enemyImages[frozenKey] && enemyImages[frozenKey].complete) img = enemyImages[frozenKey];
+        }
+        
+        if (img && img.complete) {
+            const size = enemy.radius * 2.5;
+            const facingRight = enemy.vx > 0;
+            
+            // ✅ 创建临时离屏画布（只在需要 isHit 时才用）
+            if (enemy.isHit) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = size;
+                tempCanvas.height = size;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.imageSmoothingEnabled = false;
+                
+                // 在离屏画布绘制敌人
+                if (facingRight) {
+                    tempCtx.translate(size / 2, size / 2);  // 移到中心
+                    tempCtx.scale(-1, 1);
+                    tempCtx.drawImage(img, -size / 2, -size / 2, size, size);
+                    
+                    // ✅ 遮罩也要相对于中心画（因为已经 translate 了）
+                    tempCtx.globalCompositeOperation = 'source-atop';
+                    tempCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    tempCtx.fillRect(-size / 2, -size / 2, size, size); // 🔑 改这里！
+                } else {
+                    tempCtx.drawImage(img, 0, 0, size, size);
+                    tempCtx.globalCompositeOperation = 'source-atop';
+                    tempCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    tempCtx.fillRect(0, 0, size, size);
+                }
+                
+                ctx.drawImage(tempCanvas, enemy.x - size / 2, enemy.y - size / 2);
+            }
+            else {
+                // 正常绘制（无遮罩）
+                ctx.save();
+                ctx.imageSmoothingEnabled = false;
+                if (facingRight) {
+                    ctx.translate(enemy.x, enemy.y);
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                } else {
+                    ctx.drawImage(img, enemy.x - size / 2, enemy.y - size / 2, size, size);
+                }
+                ctx.restore();
+            }
+        } else {
+            // 备选圆形
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+            ctx.fillStyle = enemy.color;
+            ctx.fill();
+        }
+
+        // 血条
+        const barWidth = enemy.radius * 2;
+        const barHeight = 4;
+        ctx.fillStyle = '#333';
+        ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.radius - 10, barWidth, barHeight);
+        ctx.fillStyle = '#00ff00';
+        ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.radius - 10, barWidth * (enemy.health / enemy.maxHealth), barHeight);
+    });
+
+
+    
+
+    
+    player.weapons.forEach(weapon => {
+        if (weapon.type === 'melee') {
+            const c = weapon.count || 1;
+            const base = weapon.baseAngle || 0;  // ✅ 用 updateWeapons 里算好的 baseAngle
+            const step = (Math.PI * 2) / c;
+            const rad = weapon.radius ;     // ✅ 兜底默认半径
+
+            for (let i = 0; i < c; i++) {
+                const ang = base + i * step;
+                const sx = player.x + Math.cos(ang) * rad;  // ✅ 计算剑的实际位置
+                const sy = player.y + Math.sin(ang) * rad;
+
+                if (!Number.isFinite(sx) || !Number.isFinite(sy)) continue;  // ✅ 防 NaN
+                drawSword(sx, sy, ang, weapon);  // ✅ 传坐标和角度
+            }
+        }
+
+        else if (weapon.type === 'floating') {
+            const x = player.x + Math.cos(weapon.angle) * weapon.floatingRadius;
+            const y = player.y + Math.sin(weapon.angle) * weapon.floatingRadius;
+            
+            if (weapon.name === '闪电球') {
+                drawLightningBall(weapon, x, y);
+            } else if (weapon.name === '冰霜球') {
+                drawFrostBall(weapon, x, y);
+            } else if (weapon.name === '暗影球') {
+                drawShadowBall(weapon, x, y);
+            }
+        }
+    });
+
+    drawPlayer(player.x, player.y);
+    
+
+    drawDamageNumbers();
+}
+
+function gameLoop() {
+    if (!gameRunning) return;
+
+    if (!gamePaused) {
+        frameCount++;
+        // 更新毒圈
+        updatePoisonZones();
+
+        // 周期性概率生成火堆（约每10s尝试一次）
+        if (frameCount % campfireSpawnInterval === 0 && campfires.length <= 3 && Math.random() < campfireSpawnChance) {
+            spawnCampfire();
+        }
+
+        if (frameCount % 60 === 0) {
+            gameTime++;
+            enemySpawnRate = Math.max(20, 60 - currentWave * 5); // 刷怪率
+            waveTimer--;
+
+            if (waveOngoing) {
+                if (currentWave === 10) {
+                    // 第10波：只看倒计时，倒计时到0 ⇒ 通关（无论Boss是否已被击杀）
+                    if (waveTimer <= 0) {
+                        victory();        // 见下面第 4 步
+                        waveOngoing = false;
+                    }
+                } else {
+                    // 普通波：时间到 ⇒ 进商店
+                    if (waveTimer <= 0) {
+                        waveOngoing = false;
+                        clearBattlefield();
+                        onWaveEndEffects();
+                        openShop();
+                    }
+                }
+            }
+        }   
+        // —— 刷怪块（按刷新间隔执行）——
+        if (waveOngoing && frameCount % enemySpawnRate === 0) {
+            if (currentWave === 10) {
+                // 只生成一次Boss
+                if (!bossSpawned) {
+                    spawnBoss();
+                    bossSpawned = true;
+                }
+                // ★ 极低概率刷小怪（你可微调概率/频率）
+                if (Math.random() < 0.1) { // 约10%几率
+                    spawnEnemy();
+                }
+            } else {
+                // 普通波：成群生成
+                const enemiesPerSpawn = currentWave >= 5 ? 2 + Math.floor(currentWave / 3) : 1; // 每次生成几个怪物
+                for (let i = 0; i < enemiesPerSpawn; i++) {
+                    spawnEnemy();
+                }
+            }
+        }
+
+
+
+        player.vx = 0;
+        player.vy = 0;
+        if (keys['w'] || keys['arrowup']) player.vy = -player.speed;
+        if (keys['s'] || keys['arrowdown']) player.vy = player.speed;
+        if (keys['a'] || keys['arrowleft']) player.vx = -player.speed;
+        if (keys['d'] || keys['arrowright']) player.vx = player.speed;
+
+        if (player.vx !== 0 && player.vy !== 0) {
+            const factor = 1 / Math.sqrt(2);
+            player.vx *= factor;
+            player.vy *= factor;
+        }
+
+        player.x += player.vx;
+        player.y += player.vy;
+
+        player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+        player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+
+        
+
+
+        updateWeapons();
+        updateBullets();
+        updateEnemies();
+        updateDrops();
+        updateParticles();
+        updateDamageNumbers();
+        updateUI();
+    }
+
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+function togglePause() {
+    if (!gameRunning) return;
+    gamePaused = !gamePaused;
+    
+    if (gamePaused) {
+        document.getElementById('pauseMenu').style.display = 'block';
+    } else {
+        document.getElementById('pauseMenu').style.display = 'none';
+        document.getElementById('shopMenu').style.display = 'none';
+    }
+}
+
+function gameOver() {
+    gameRunning = false;
+    document.getElementById('finalLevel').textContent = level;
+    document.getElementById('finalKills').textContent = kills;
+    document.getElementById('finalTime').textContent = Math.floor(gameTime);
+    document.getElementById('gameOver').style.display = 'block';
+}
+
+function victory() {
+    alert("🎉 恭喜通关！（第10波倒计时结束）");
+    gameRunning = false;
+}
+
+
+function restartGame() {
+    location.reload();
+}
+
+window.onload = () => {
+    initHeroMenu();
+    updateUI();
+};
+
+</script>
+</body>
+</html>

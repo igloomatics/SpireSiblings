@@ -1,0 +1,832 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            background: linear-gradient(135deg, #0a0e27, #16213e);
+            border: 3px solid #0f3460;
+            box-shadow: 0 0 30px rgba(15, 52, 96, 0.8);
+        }
+
+        /* 横幅样式 */
+        #topBanner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: #314657;
+            display: flex;
+            justify-content: space-between; /* 左中右分布 */
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            color: white;
+            z-index: 10000;
+        }
+
+        /* 左边组：职业 + 金币 */
+        .leftGroup {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* 职业与金币间距 */
+        }
+
+        #className {
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        #MoneyInfo {
+            font-weight: bold;
+            font-size: 16px;
+            color: #fcd927; /* 金色 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* 居中层数信息 */
+        #waveInfo {
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff;
+            text-align: center;
+            flex: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* 右侧时间 */
+        #gameTime {
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+
+
+        /* 游戏时间样式 */
+        #gameTime {
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff; /* 白色 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: none;
+        }
+
+        /* 角色属性表 */
+        #ui {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            font-size: 14px;
+            line-height: 1.8;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #0f3460;
+        }
+
+        #weapons {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #0f3460;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        .weaponItem {
+        position: relative;
+        margin: 4px 0;
+        }
+
+        .removeWeaponBtn {
+        float: right;
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #ff4444;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 0 6px;
+        }
+        .removeWeaponBtn:hover {
+        background: rgba(255, 0, 0, 0.5);
+        }
+
+
+        
+
+        /* 悬停提示 */
+        #pauseHint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 停止菜单 */
+        #pauseMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #0f3460;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        #pauseMenu h2 {
+            margin-bottom: 30px;
+            font-size: 32px;
+            color: #00d4ff;
+        }
+
+        #pauseMenu button {
+            margin: 10px;
+            padding: 10px 30px;
+            font-size: 16px;
+            background: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #pauseMenu button:hover {
+            background: #0a8cc9;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            padding: 50px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        #gameOver h1 {
+            color: #ff0000;
+            margin-bottom: 30px;
+            font-size: 48px;
+        }
+
+        #gameOver p {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #00d4ff;
+        }
+
+        #gameOver button {
+            margin-top: 30px;
+            padding: 15px 50px;
+            font-size: 18px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #gameOver button:hover {
+            background: #cc0000;
+        }
+
+        /* 英雄选择菜单 */
+        /* 英雄选择菜单：全屏 + 背景图 */
+        #heroMenu {
+            position: absolute;
+            top: 0; 
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            background: url("image/slaythespire.jpeg"); /* ✅ 背景图片铺满 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            border: 0px solid #7c3aed;
+            padding: 40px;
+            border-radius: 0;          /* 去掉圆角，和全屏贴合 */
+            text-align: center;
+            z-index: 20000;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;   /* 居中内容 */
+            
+            backdrop-filter: brightness(0.85);  /* 可选：稍微变暗，突出选项 */
+        }
+
+        /* 标题 */
+        #heroMenu h2 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 0 0 20px #000000;
+        }
+
+        /* 副标题 */
+        #heroMenu .subtitle {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* 英雄选项 */
+        .heroOptions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+            width: 600px; /* 居中显示，避免太宽 */
+        }
+
+        .heroOption {
+            border: 2px solid #334155;
+            border-radius: 8px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: rgba(2, 6, 23, 0.6);
+            text-align: left;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .heroOption:hover {
+            transform: translateY(-2px);
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .heroSwatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        .heroMeta {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+
+
+        /* 让祝福菜单默认隐藏（选英雄后再显示） */
+        #blessingMenu{ display:none; }
+
+
+        /* 祝福菜单容器 - 在gameContainer内部 */
+        /* 祝福菜单容器 - 以图片作为全屏背景 */
+        #blessingMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./image/nieao.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: none;
+            z-index: 100;
+            padding: 0;
+            border: none;
+            margin: 0;
+        }
+
+        /* 内部容器 */
+        .blessingContainer {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        
+
+        /* 左侧：角色图像 + 选项 */
+        .blessingLeft {
+            flex: 0 0 50%;  /* 固定宽度60% */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;  /* 改为 flex-start 左对齐 */
+            padding: 140px 0px 0px 40px;  /* 左边添加 padding */
+            gap: 15px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 角色图像区域 */
+        .blessingHeroImage {
+            width: 200px;
+            height: 300px;
+            border: 0px solid #ffd700;
+            border-radius: 8px;
+            overflow: hidden;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .blessingHeroImage img {
+            width: 100%;     /* 或者 60%、50% 等 */
+            height: auto;   /* 保持比例 */
+            object-fit: contain;  /* 防止被拉伸 */
+        }
+
+
+        /* 选项容器 - 位于左下角 */
+        .blessingOptionsContainer {
+            width: 100%;
+            max-width: 400px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 3;
+        }
+
+        /* 祝福选项容器 */
+        #blessingOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* 祝福选项卡片 */
+        .blessingUpgradeOption {
+            padding: 14px 12px;
+            background: linear-gradient(135deg, #0f3460 0%, #1a5490 100%);
+            border: 4px solid #000000;  /* 默认黑色边框 */
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            flex-shrink: 0;
+            min-height: 50px; /* 选项卡高度 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 悬浮效果 - 边框白色，背景暗绿色 */
+        .blessingUpgradeOption:hover {
+            background: linear-gradient(135deg, #1a4d3a 0%, #2a6d50 100%);  /* 暗绿色 */
+            border-color: #ffffff;  /* 白色边框 */
+            transform: translateX(0px);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 选中状态 */
+        .blessingUpgradeOption.selected {
+            background: linear-gradient(135deg, #2a7f62 0%, #3a9f7f 100%);
+            border-color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .blessingUpgradeOption h3 {
+            margin: 0 0 2px 0;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .blessingUpgradeOption p {
+            margin: 0;
+            font-size: 11px;
+            color: #c0c8d4;
+            line-height: 1.4;
+        }
+
+
+
+        
+
+
+
+        #levelUpMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #00ff00;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+            width: 600px;
+        }
+
+        #levelUpMenu h2 {
+            color: #00ff00;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #shopMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ffd700;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+            width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        #shopMenu h2 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 0 0 20px #ffd700;
+        }
+
+        #shopMenu .shopInfo {
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        #shopMenu .shopInfo span {
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        /* 血条位置*/
+        #healthBarContainer {
+            position: absolute;
+            top: 550px;   /*  */
+            left: 30%;
+            transform: translateX(-50%);
+            width: 500px;
+            z-index: 25;
+
+            background: transparent;   /* 透明 */
+            border: 0;
+            border-radius: 0;
+            padding: 0;                /* 去掉内边距，避免黑底视觉 */
+            box-shadow: none;
+        }
+
+        /* 横向排列：血条 + 数字 */
+        .health-bar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px; /* 数字与血条的间距 */
+        }
+
+        /* 血条轨道（必须有固定高度！） */
+        .health-bar-bg {
+            width: 500px;   /* 按需调整 */
+            height: 20px;    /* 窄条的关键 */
+            border: 1px solid rgba(0,0,0,0.7); /* 细描边 */
+            border-radius: 0;                            /* 直角 */
+            position: relative;
+            overflow: hidden;
+            background: black;                   /* 轨道背景透明 */
+        }
+
+        /* 红色填充条 */
+        .health-bar-fill {
+            display: block;
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 100%;                /* 初始满血 */
+            background: red;
+            border: none;
+            border-radius: 0;
+            transition: width 0.3s ease;
+            box-shadow: none;
+        }
+
+        /* 数字在右侧、加粗 */
+        .health-text,
+            #healthValue {
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+
+        /* 经验条 */
+        #expBarContainer {
+            position: absolute;
+            top: 570px;          /* 比血条略下方 */
+            left: 30%;
+            transform: translateX(-50%);
+            width: 500px;
+            z-index: 25;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        /* 横向排列：经验条 + 数字 */
+        .exp-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;   
+        }
+        
+
+        /* 背景轨道 */
+        .exp-bar-bg {
+            width: 500px;  /* 长度 */
+            height: 20px;
+            border: 1px solid rgba(0,0,0,0.7);
+            border-radius: 0;
+            position: relative;
+            overflow: hidden;
+            background: black;
+        }
+
+        
+
+        /* 绿色填充 */
+        .exp-bar-fill {
+            display: block;
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 0%;                   /* 初始为0 */
+            background: #129c50;
+            border: none;
+            border-radius: 0;
+            transition: width 0.3s ease;
+        }
+
+        /* 数字样式 */
+        .exp-text,
+        #expValue {
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        @keyframes pulse {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0.6;
+            }
+        }
+
+        .shopItems {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shopItem {
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            border: 2px solid;
+            position: relative;
+        }
+
+        .shopItem.common {
+            border-color: #c0c0c0;
+            background: rgba(192, 192, 192, 0.1);
+        }
+
+        .shopItem.common:hover {
+            background: rgba(192, 192, 192, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .shopItem.rare {
+            border-color: #4169e1;
+            background: rgba(65, 105, 225, 0.1);
+            box-shadow: 0 0 10px rgba(65, 105, 225, 0.5);
+        }
+
+        .shopItem.rare:hover {
+            background: rgba(65, 105, 225, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(65, 105, 225, 0.8);
+        }
+
+        .shopItem.legendary {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .shopItem.legendary:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+        }
+
+        .shopItem h3 {
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: white;
+        }
+
+        .shopItem p {
+            font-size: 12px;
+            color: #888;
+            margin: 5px 0;
+            min-height: 24px;
+        }
+
+        .shopItem .price {
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #ffff00;
+        }
+
+        .shopItem .rarity {
+            font-size: 11px;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .shopItem.rare .rarity {
+            color: #4edeff;
+        }
+
+        .shopItem.legendary .rarity {
+            color: #ffd700;
+        }
+
+        .shopItem .lore {
+            font-size: 11px;
+            color: #9aa3b0;      /* 柔和的灰蓝色 */
+            margin-top: 6px;
+            line-height: 1.5;
+            font-style: italic;  /* 斜体可选 */
+            opacity: 0.85;
+        }
+
+        .shopCloseBtn {
+            margin-top: 20px;
+            padding: 12px 40px;
+            font-size: 16px;
+            background: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .shopCloseBtn:hover {
+            background: #0a8cc9;
+        }
+
+        .upgradeOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .upgradeOption {
+            padding: 15px 20px;
+            border: 2px solid #00d4ff;
+            border-radius: 5px;
+            background: rgba(0, 212, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upgradeOption:hover {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00ff00;
+            transform: translateX(5px);
+        }
+
+        .upgradeOption.blessing {
+            border-color: #000000;
+            background: rgba(7, 73, 93, 0.1);
+        }
+
+        .upgradeOption.blessing:hover {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffed4e;
+        }
+
+        .upgradeNumber {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+            min-width: 30px;
+        }
+
+        .upgradeContent {
+            flex: 1;
+        }
+
+        .upgradeOption h3 {
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .upgradeOption p {
+            font-size: 12px;
+            color: #888;
+            margin: 0;
+        }
+
+        /* ===== 自定义 Tooltip ===== */
+        .tooltip {
+        position: fixed;
+        z-index: 99999;            /* 比菜单更高 */
+        pointer-events: none;
+        display: none;
+        max-width: 280px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #0f3460;
+        background: rgba(3, 7, 18, 0.95);
+        color: #e5e7eb;
+        font-size: 12px;
+        line-height: 1.5;
+        box-shadow: 0 0 18px rgba(15, 52, 96, .6);
+        }
+        .tooltip h4 { margin: 0 0 6px; font-size: 13px; color: #00d4ff; }
+        .tooltip .muted { color:#94a3b8; }
+        .tooltip .tag { font-size: 11px; color:#a78bfa; }
+        .tooltip .num { color:#ffd700; }
+
+
