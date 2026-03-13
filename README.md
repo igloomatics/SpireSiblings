@@ -104,7 +104,7 @@
 <div align="center">
 
   <!-- 连续贡献 -->
-  <img src="https://streak-stats.demolab.com/?user=YOUR_USERNAME&theme=radical&hide_border=true&background=0d1117&ring=C084FC&fire=FF6B9D&currStreakLabel=C084FC&sideLabels=e6bfff&sideNums=FF6B9D&currStreakNum=FF6B9D&dates=e6bfff80" />
+  <img src="https://streak-stats.demolab.com/?user=igloomatics&theme=radical&hide_border=true&background=0d1117&ring=C084FC&fire=FF6B9D&currStreakLabel=C084FC&sideLabels=e6bfff&sideNums=FF6B9D&currStreakNum=FF6B9D&dates=e6bfff80" />
 
 </div>
 
@@ -112,7 +112,7 @@
 
 <!-- 贡献图 -->
 <div align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=YOUR_USERNAME&theme=react-dark&hide_border=true&bg_color=0d1117&color=C084FC&line=FF6B9D&point=e6bfff&area=true&area_color=C084FC" width="95%"/>
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=igloomatics&theme=react-dark&hide_border=true&bg_color=0d1117&color=C084FC&line=FF6B9D&point=e6bfff&area=true&area_color=C084FC" width="95%"/>
 </div>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
@@ -123,9 +123,9 @@
 <div align="center">
 
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_USERNAME/output/github-contribution-grid-snake-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_USERNAME/output/github-contribution-grid-snake.svg" />
-    <img alt="github-snake" src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_USERNAME/output/github-contribution-grid-snake.svg" width="100%" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake.svg" />
+    <img alt="github-snake" src="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake.svg" width="100%" />
   </picture>
 
   > ⚠️ 贪吃蛇需要配置 GitHub Actions，详见下方说明
@@ -138,7 +138,7 @@
 ## 🏆 GitHub 奖杯 | Trophies
 
 <div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=YOUR_USERNAME&theme=radical&no-frame=true&no-bg=true&column=7&margin-w=10" width="95%"/>
+  <img src="https://github-profile-trophy.vercel.app/?username=igloomatics&theme=radical&no-frame=true&no-bg=true&column=7&margin-w=10" width="95%"/>
 </div>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
