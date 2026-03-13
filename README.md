@@ -1,189 +1,218 @@
-<!-- 🌸 波浪头图 - 粉紫渐变二次元风 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--                   igloomatics · GitHub Profile README         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<!-- ▌ HEADER BANNER ▌ -->
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF6B9D,50:C084FC,100:818CF8&height=230&section=header&text=こんにちは!%20👋&fontSize=70&fontColor=ffffff&animation=fadeIn&fontAlignY=32&desc=✨%20Welcome%20to%20my%20GitHub%20Profile%20✨&descAlignY=52&descSize=20&descColor=ffffffcc" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=venom&color=0:0f0c29,50:302b63,100:24243e&height=280&section=header&text=igloomatics&fontSize=80&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=⚡%20Building%20from%20the%20frozen%20north%20⚡&descAlignY=55&descAlign=50&descColor=a78bfa&stroke=6d28d9&strokeWidth=2" width="100%"/>
 </div>
 
-<!-- 🎀 打字机效果 -->
+<!-- ▌ TYPING SVG ▌ -->
 <div align="center">
   <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Zen+Maru+Gothic&size=22&duration=3000&pause=1000&color=C084FC&center=true&vCenter=true&multiline=false&repeat=true&width=600&height=45&lines=%F0%9F%8C%B8+%E9%AB%98%E4%BA%8C%E5%AD%A6%E7%94%9F+%7C+%E4%BA%8C%E6%AC%A1%E5%85%83%E7%88%B1%E5%A5%BD%E8%80%85+%F0%9F%8E%8C;%F0%9F%92%BB+%E4%B8%9A%E4%BD%99%E5%BC%80%E5%8F%91%E8%80%85+%7C+%E6%AD%A3%E5%9C%A8%E5%AD%A6%E4%B9%A0%E4%B8%AD...+%F0%9F%93%9A;%E2%9C%A8+%E4%BB%A3%E7%A0%81%E4%B8%8E%E5%8A%A8%E6%BC%AB%EF%BC%8C%E9%83%BD%E6%98%AF%E6%88%91%E7%9A%84%E7%83%AD%E7%88%B1!+%F0%9F%92%96" alt="Typing SVG" />
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&random=false&width=600&height=50&lines=👾+Full+Stack+Developer;🧊+Code+%7C+Build+%7C+Ship;🌌+Open+Source+Enthusiast;🚀+Always+leveling+up" alt="Typing SVG" />
   </a>
 </div>
 
-<br>
+<br/>
 
-<!-- 🌟 个人简介 -->
+<!-- ▌ PROFILE VIEWS + SOCIAL ▌ -->
 <div align="center">
+  <img src="https://komarev.com/ghpvc/?username=igloomatics&color=6d28d9&style=flat-square&label=Profile+Views" />
+  &nbsp;
+  <img src="https://img.shields.io/github/followers/igloomatics?style=flat-square&color=6d28d9&logo=github&label=Followers" />
+  &nbsp;
+  <img src="https://img.shields.io/github/stars/igloomatics?style=flat-square&color=a78bfa&logo=github&label=Total+Stars" />
+</div>
 
+<br/>
+
+<!-- ▌ RAINBOW DIVIDER ▌ -->
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+
+<!-- ▌ ABOUT ME ▌ -->
+<div align="center">
+  <h2>🧊 About Me</h2>
+</div>
+
+```typescript
+const igloomatics = {
+  pronouns    : "they / them",
+  location    : "🌍 Earth — somewhere cold",
+  currentWork : "🔭 Building something awesome",
+  learning    : "🌱 Always exploring new tech",
+  askMeAbout  : ["web dev", "open source", "coffee ☕"],
+  hobbies     : ["coding", "gaming", "chilling like an igloo"],
+  funFact     : "I write better code after midnight 🌙"
+};
 ```
-🏫 高二在读 | 📍 中国
-🎌 二次元 | 🎮 游戏 | 💻 编程
-✨ 在代码与番剧之间寻找平衡的高中生
-```
 
-</div>
+<br/>
 
+<!-- ▌ RAINBOW DIVIDER ▌ -->
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
 
-<!-- 📖 关于我 -->
-## <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="28"> 关于我 | About Me
+<!-- ▌ TECH STACK ▌ -->
+<div align="center">
+  <h2>⚡ Tech Stack</h2>
+</div>
 
-<img align="right" src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" alt="Coder" width="280">
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=python,typescript,javascript,go,rust&perline=5&theme=dark" />
+</div>
+<br/>
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=react,nextjs,vue,tailwind,nodejs&perline=5&theme=dark" />
+</div>
+<br/>
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=docker,kubernetes,aws,postgres,redis&perline=5&theme=dark" />
+</div>
+<br/>
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=git,github,linux,vscode,figma&perline=5&theme=dark" />
+</div>
 
-- 🏫 **高二学生**，正在努力平衡学业与爱好
-- 🎌 **二次元重度爱好者**，追番、看漫画是日常
-- 💻 **业余程序员**，喜欢用代码实现有趣的想法
-- 🎮 热爱游戏，尤其是日系 RPG 和 Galgame
-- 🎨 偶尔画画，梦想有一天能做出自己的游戏
-- 🌱 目前正在学习：**Python / JavaScript / Unity**
-- 📺 最近在追的番：`你的推荐番剧`
-- 🎵 喜欢听：**ACG 音乐 / V 家 / 日系摇滚**
-- 💬 座右铭：*「始まりは終わりの始まり」*
+<br/>
 
-<br clear="both">
+<!-- ▌ TECHSTACK GENERATOR ANIMATED ICONS ▌ -->
+<div align="center">
+  <img src="https://techstack-generator.vercel.app/python-icon.svg" width="65" height="65" alt="Python"/>
+  <img src="https://techstack-generator.vercel.app/ts-icon.svg" width="65" height="65" alt="TypeScript"/>
+  <img src="https://techstack-generator.vercel.app/react-icon.svg" width="65" height="65" alt="React"/>
+  <img src="https://techstack-generator.vercel.app/docker-icon.svg" width="65" height="65" alt="Docker"/>
+  <img src="https://techstack-generator.vercel.app/aws-icon.svg" width="65" height="65" alt="AWS"/>
+  <img src="https://techstack-generator.vercel.app/github-icon.svg" width="65" height="65" alt="GitHub"/>
+</div>
 
+<br/>
+
+<!-- ▌ RAINBOW DIVIDER ▌ -->
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
 
-<!-- 🛠️ 技术栈 -->
-## 🛠️ 正在学习的技术栈 | Tech Stack
-
+<!-- ▌ GITHUB STATS ▌ -->
 <div align="center">
-
-  <!-- 编程语言 -->
-  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-  <img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white" />
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
-
-  <br>
-
-  <!-- 工具/框架 -->
-  <img src="https://img.shields.io/badge/Unity-000000?style=for-the-badge&logo=unity&logoColor=white" />
-  <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" />
-  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
-  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-
+  <h2>📊 GitHub Stats</h2>
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
-
-<!-- 🎌 二次元爱好 -->
-## 🎌 二次元の世界 | My Anime World
-
 <div align="center">
-
-| 🏆 推荐番剧 | 🎮 喜欢的游戏 | 📚 推荐漫画 |
-|:---:|:---:|:---:|
-| 进击的巨人 | 原神 | 咒术回战 |
-| 鬼灭之刃 | 崩坏：星穹铁道 | 电锯人 |
-| 间谍过家家 | Fate/Grand Order | 辉夜大小姐 |
-| 葬送的芙莉莲 | 明日方舟 | 异世界舅舅 |
-| 孤独摇滚！ | 蔚蓝档案 | 转生成蜘蛛 |
-
+  <img src="https://github-readme-stats.vercel.app/api?username=igloomatics&show_icons=true&theme=midnight-purple&hide_border=true&count_private=true&include_all_commits=true&rank_icon=github&show=reviews,prs_merged" height="180"/>
+  &nbsp;
+  <img src="https://streak-stats.demolab.com/?user=igloomatics&theme=midnight-purple&hide_border=true&ring=a78bfa&fire=f97316&currStreakNum=ffffff&sideNums=a78bfa&currStreakLabel=a78bfa&sideLabels=8b949e&dates=8b949e" height="180"/>
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
-
-<!-- 📊 GitHub 统计 -->
-## 📊 GitHub 统计 | GitHub Stats
+<br/>
 
 <div align="center">
-
-  <!-- 统计卡片 -->
-  <img height="170" src="https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&show_icons=true&theme=radical&hide_border=true&count_private=true&locale=cn&bg_color=0d1117&title_color=C084FC&text_color=e6bfff&icon_color=FF6B9D" />
-  &nbsp;&nbsp;
-  <!-- 语言卡片 -->
-  <img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=YOUR_USERNAME&layout=compact&theme=radical&hide_border=true&locale=cn&bg_color=0d1117&title_color=C084FC&text_color=e6bfff&langs_count=8" />
-
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=igloomatics&layout=donut&theme=midnight-purple&hide_border=true&langs_count=8" height="200"/>
 </div>
 
-<br>
+<br/>
 
+<!-- ▌ ACTIVITY GRAPH ▌ -->
 <div align="center">
-
-  <!-- 连续贡献 -->
-  <img src="https://streak-stats.demolab.com/?user=igloomatics&theme=radical&hide_border=true&background=0d1117&ring=C084FC&fire=FF6B9D&currStreakLabel=C084FC&sideLabels=e6bfff&sideNums=FF6B9D&currStreakNum=FF6B9D&dates=e6bfff80" />
-
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=igloomatics&bg_color=0d0d1a&color=a78bfa&line=6d28d9&point=f97316&area_color=a78bfa&area=true&hide_border=true&custom_title=igloomatics%27s%20Contribution%20Graph" width="100%"/>
 </div>
 
-<br>
+<br/>
 
-<!-- 贡献图 -->
+<!-- ▌ 3D BAR CONTRIBUTION ▌ -->
 <div align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=igloomatics&theme=react-dark&hide_border=true&bg_color=0d1117&color=C084FC&line=FF6B9D&point=e6bfff&area=true&area_color=C084FC" width="95%"/>
-</div>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
-
-<!-- 🐍 贡献贪吃蛇 -->
-## 🐍 贡献贪吃蛇 | Contribution Snake
-
-<div align="center">
-
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake.svg" />
-    <img alt="github-snake" src="https://raw.githubusercontent.com/igloomatics/igloomatics/output/github-contribution-grid-snake.svg" width="100%" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://ssr-contributions-svg.vercel.app/_/igloomatics?chart_type=3dbar&format=svg&dark=true&animation=wave&animation_duration=4&animation_delay=0.06&animation_amplitude=24&animation_frequency=0.1&animation_wave_center=0_3&gap=0.6&scale=2&flatten=2" />
+    <source media="(prefers-color-scheme: light)" srcset="https://ssr-contributions-svg.vercel.app/_/igloomatics?chart_type=3dbar&format=svg&animation=wave&animation_duration=4&animation_delay=0.06&animation_amplitude=24&animation_frequency=0.1&animation_wave_center=0_3&gap=0.6&scale=2&flatten=2" />
+    <img src="https://ssr-contributions-svg.vercel.app/_/igloomatics?chart_type=3dbar&format=svg&dark=true&animation=wave" width="100%" />
   </picture>
-
-  > ⚠️ 贪吃蛇需要配置 GitHub Actions，详见下方说明
-
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+<br/>
 
-<!-- 🏆 奖杯墙 -->
-## 🏆 GitHub 奖杯 | Trophies
-
+<!-- ▌ CONTRIBUTION SNAKE ▌ -->
+<!-- 需要先配置 GitHub Actions，详见下方说明 -->
 <div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=igloomatics&theme=radical&no-frame=true&no-bg=true&column=7&margin-w=10" width="95%"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/igloomatics/igloomatics/raw/output/github-contribution-grid-snake-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/igloomatics/igloomatics/raw/output/github-contribution-grid-snake.svg" />
+    <img alt="github contribution snake" src="https://github.com/igloomatics/igloomatics/raw/output/github-contribution-grid-snake.svg" width="100%" />
+  </picture>
 </div>
 
+<br/>
+
+<!-- ▌ RAINBOW DIVIDER ▌ -->
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
 
-<!-- 🎵 社交链接 -->
-## 🔗 找到我 | Find Me
-
+<!-- ▌ RANDOM QUOTE ▌ -->
 <div align="center">
+  <h2>💬 Dev Wisdom</h2>
+  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" />
+</div>
 
-  <a href="https://space.bilibili.com/YOUR_BILIBILI_UID">
-    <img src="https://img.shields.io/badge/Bilibili-00A1D6?style=for-the-badge&logo=bilibili&logoColor=white" />
+<br/>
+
+<!-- ▌ DEV JOKE ▌ -->
+<div align="center">
+  <img src="https://readme-jokes.vercel.app/api?theme=tokyonight&hideBorder" />
+</div>
+
+<br/>
+
+<!-- ▌ RAINBOW DIVIDER ▌ -->
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%"/>
+
+<!-- ▌ CONNECT ▌ -->
+<div align="center">
+  <h2>🤝 Connect with Me</h2>
+
+  <a href="https://github.com/igloomatics">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
   </a>
-  <a href="https://twitter.com/YOUR_TWITTER">
-    <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" />
+  &nbsp;
+  <!-- 替换下方链接为你的实际账号 -->
+  <a href="https://linkedin.com/in/igloomatics">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
   </a>
-  <a href="mailto:YOUR_EMAIL@gmail.com">
+  &nbsp;
+  <a href="https://x.com/igloomatics">
+    <img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" />
+  </a>
+  &nbsp;
+  <a href="mailto:igloomatics@email.com">
     <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
   </a>
-  <a href="https://YOUR_BLOG_URL">
-    <img src="https://img.shields.io/badge/Blog-FF5722?style=for-the-badge&logo=blogger&logoColor=white" />
-  </a>
-
 </div>
 
-<br>
+<br/>
 
-<!-- 👀 访客计数 -->
+<!-- ▌ FOOTER BANNER ▌ -->
 <div align="center">
-  <img src="https://komarev.com/ghpvs/?username=igloomatics&color=C084FC&style=for-the-badge&label=VISITORS" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:24243e,50:302b63,100:0f0c29&height=120&section=footer&animation=twinkling" width="100%"/>
 </div>
 
-<br>
-
-<!-- 🌸 名言 -->
-<div align="center">
-
-  *「プログラミングもアニメも、情熱があれば何でもできる！」*
-
-  **编程也好，动漫也罢，只要有热情，什么都能做到！**
-
-</div>
-
-<br>
-
-<!-- 🌊 波浪尾图 -->
-<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:818CF8,50:C084FC,100:FF6B9D&height=120&section=footer" width="100%"/>
-</div>
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  ⚙️  GITHUB ACTIONS 配置说明（贪吃蛇动画需要）               -->
+<!--                                                               -->
+<!--  在仓库中创建 .github/workflows/snake.yml，内容如下：         -->
+<!--                                                               -->
+<!--  name: Generate Snake                                         -->
+<!--  on:                                                          -->
+<!--    schedule:                                                  -->
+<!--      - cron: "0 */6 * * *"                                   -->
+<!--    workflow_dispatch:                                          -->
+<!--  jobs:                                                        -->
+<!--    generate:                                                  -->
+<!--      runs-on: ubuntu-latest                                   -->
+<!--      steps:                                                   -->
+<!--        - uses: Platane/snk/svg-only@v3                       -->
+<!--          with:                                                -->
+<!--            github_user_name: ${{ github.repository_owner }}  -->
+<!--            outputs: |                                         -->
+<!--              dist/github-contribution-grid-snake.svg          -->
+<!--              dist/github-contribution-grid-snake-dark.svg?palette=github-dark -->
+<!--        - uses: crazy-max/ghaction-github-pages@v3            -->
+<!--          with:                                                -->
+<!--            target_branch: output                              -->
+<!--            build_dir: dist                                    -->
+<!--          env:                                                 -->
+<!--            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
