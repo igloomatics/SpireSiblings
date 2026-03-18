@@ -50,30 +50,27 @@
 
 
     <canvas id="gameCanvas"></canvas>
-        <div id="ui">
-            <div>🔥 增伤 <span id="damageBonus">0</span>%</div>
-            <div>💪 力量 <span id="strength">0</span></div>
-            <div>🎯 精准 <span id="precision">0</span></div>
-            <div>🧠 集中 <span id="focus">0</span></div>
-            <div>🏃 敏捷 <span id="agility">0</span>%</div>
-            <div>💨 攻速 <span id="attackSpeed">1.0x</span></div>
-            <div>💥 暴击率 <span id="critRate">0</span>%</div>
-            <div>📡 范围 <span id="scope">0</div>
-            <div>👟 移速 <span id="moveSpeed">3.0</span></div>
+        <div id="ui" class="hudPanel statsPanel">
+            <div class="hudPanelTitle">属性</div>
+            <div class="statRow"><span>🔥 增伤</span><strong><span id="damageBonus">0</span>%</strong></div>
+            <div class="statRow"><span>💪 力量</span><strong><span id="strength">0</span></strong></div>
+            <div class="statRow"><span>🎯 精准</span><strong><span id="precision">0</span></strong></div>
+            <div class="statRow"><span>🧠 集中</span><strong><span id="focus">0</span></strong></div>
+            <div class="statRow"><span>🏃 敏捷</span><strong><span id="agility">0</span>%</strong></div>
+            <div class="statRow"><span>💨 攻速</span><strong><span id="attackSpeed">1.0x</span></strong></div>
+            <div class="statRow"><span>💥 暴击率</span><strong><span id="critRate">0</span>%</strong></div>
+            <div class="statRow"><span>📡 范围</span><strong><span id="scope">0</span></strong></div>
+            <div class="statRow"><span>👟 移速</span><strong><span id="moveSpeed">3.0</span></strong></div>
         </div>
 
-        <div id="weapons">
-            <strong>⚙️ 武器:</strong>
-            <div id="weaponsList" style="margin-top: 8px;"></div>
+        <div id="weapons" class="hudPanel sidePanel">
+            <div class="hudPanelTitle">武器</div>
+            <div id="weaponsList" class="panelList"></div>
         </div>
 
-        <div id="relics" style="
-        position:absolute; top:180px; right:10px;
-        font-size:12px; background:rgba(0,0,0,0.5);
-        padding:10px 15px; border-radius:5px; border:1px solid #0f3460;
-        max-width:200px; word-wrap:break-word;">
-        <strong>🏺 遗物:</strong>
-        <div id="relicsList" style="margin-top:8px;"></div>
+        <div id="relics" class="hudPanel sidePanel">
+        <div class="hudPanelTitle">遗物</div>
+        <div id="relicsList" class="panelList"></div>
         </div>
 
         <div id="pauseHint">按 ESC/P 暂停</div>
@@ -108,11 +105,15 @@
         </div>
 
         <div id="shopMenu">
-            <h2>🏪 尖塔商人 🏪</h2>
-            <div class="shopInfo">金币 x<span id="playerCoins">0</span></div>
+            <div class="shopHeader">
+                <h2>尖塔商人</h2>
+                <div class="shopCoinCounter">金币 <strong id="playerCoins">0</strong></div>
+            </div>
             <div class="shopItems" id="shopItems"></div>
-            <button class="shopCloseBtn" onclick="refreshShop()">刷新商品 (5金币)</button>
-            <button class="shopCloseBtn" onclick="closeShop()">关闭商店 (继续游戏)</button>
+            <div class="shopActions">
+                <button class="shopCloseBtn secondary" id="shopRefreshBtn" onclick="refreshShop()">刷新 5金币</button>
+                <button class="shopCloseBtn primary" onclick="closeShop()">离开</button>
+            </div>
         </div>
 
         <div id="pauseMenu">
@@ -158,26 +159,159 @@ let level = 1;
 let experience = 0;
 let coins = 0; // 初始金币0
 let experienceToLevel = 50;
-let enemySpawnRate = 60;//刷怪速度
-let baseEnemyHealth = 30;
-let baseEnemyDamage = 5;
-let baseEnemySpeed = 1;
 let bossSpawned = false;   // 检查第10波是否已生成Boss（只生成一次）
 let bossDefeated = false;  // Boss是否被击杀（第10波不立刻通关，只做标记）
 
 
 let currentWave = 1;
 const maxWaves = 10;
-const waveDurations = [15, 20, 25, 30, 40, 40, 40, 40, 40, 40]; // 每层持续时长
-let waveTimer = waveDurations[0]; // 当前波倒计时（单位：秒）
+const WAVE_CONFIGS = [
+    {
+        duration: 18,
+        spawnInterval: 78,
+        spawnCount: [1, 1],
+        label: '热身',
+        enemyPool: [
+            { type: 'louse', weight: 0.85 },
+            { type: 'slime', weight: 0.15 }
+        ]
+    },
+    {
+        duration: 20,
+        spawnInterval: 74,
+        spawnCount: [1, 1],
+        label: '适应',
+        enemyPool: [
+            { type: 'louse', weight: 0.75 },
+            { type: 'slime', weight: 0.25 }
+        ]
+    },
+    {
+        duration: 22,
+        spawnInterval: 70,
+        spawnCount: [1, 2],
+        label: '铺场',
+        enemyPool: [
+            { type: 'louse', weight: 0.65 },
+            { type: 'slime', weight: 0.35 }
+        ]
+    },
+    {
+        duration: 24,
+        spawnInterval: 66,
+        spawnCount: [1, 2],
+        label: '提速',
+        enemyPool: [
+            { type: 'louse', weight: 0.55 },
+            { type: 'slime', weight: 0.35 },
+            { type: 'kakka', weight: 0.10 }
+        ]
+    },
+    {
+        duration: 26,
+        spawnInterval: 64,
+        spawnCount: [1, 2],
+        label: '压力',
+        enemyPool: [
+            { type: 'louse', weight: 0.45 },
+            { type: 'slime', weight: 0.35 },
+            { type: 'kakka', weight: 0.20 }
+        ]
+    },
+    {
+        duration: 28,
+        spawnInterval: 60,
+        spawnCount: [1, 2],
+        label: '混编',
+        enemyPool: [
+            { type: 'louse', weight: 0.35 },
+            { type: 'slime', weight: 0.40 },
+            { type: 'kakka', weight: 0.20 },
+            { type: 'sentry', weight: 0.05 }
+        ]
+    },
+    {
+        duration: 30,
+        spawnInterval: 58,
+        spawnCount: [1, 2],
+        label: '拉扯',
+        enemyPool: [
+            { type: 'louse', weight: 0.30 },
+            { type: 'slime', weight: 0.40 },
+            { type: 'kakka', weight: 0.22 },
+            { type: 'sentry', weight: 0.08 }
+        ]
+    },
+    {
+        duration: 32,
+        spawnInterval: 56,
+        spawnCount: [2, 2],
+        label: '高压',
+        enemyPool: [
+            { type: 'louse', weight: 0.25 },
+            { type: 'slime', weight: 0.38 },
+            { type: 'kakka', weight: 0.25 },
+            { type: 'sentry', weight: 0.12 }
+        ]
+    },
+    {
+        duration: 34,
+        spawnInterval: 54,
+        spawnCount: [2, 3],
+        label: '冲线',
+        enemyPool: [
+            { type: 'louse', weight: 0.20 },
+            { type: 'slime', weight: 0.35 },
+            { type: 'kakka', weight: 0.28 },
+            { type: 'sentry', weight: 0.17 }
+        ]
+    },
+    {
+        duration: 50,
+        spawnInterval: 84,
+        spawnCount: [1, 1],
+        label: '首领',
+        bossMinionChance: 0.06,
+        enemyPool: [
+            { type: 'louse', weight: 1 }
+        ]
+    }
+];
+let enemySpawnRate = WAVE_CONFIGS[0].spawnInterval;
+let waveTimer = WAVE_CONFIGS[0].duration; // 当前波倒计时（单位：秒）
 let waveOngoing = true;
 let shopRefreshCost = 5;
+
+function getWaveConfig(wave = currentWave) {
+    return WAVE_CONFIGS[Math.max(0, Math.min(WAVE_CONFIGS.length - 1, wave - 1))];
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getWaveSpawnCount(wave = currentWave) {
+    const config = getWaveConfig(wave);
+    const [minCount, maxCount] = config.spawnCount;
+    return randomInt(minCount, maxCount);
+}
+
+function formatSpawnCount(spawnCount) {
+    return spawnCount[0] === spawnCount[1]
+        ? `${spawnCount[0]}`
+        : `${spawnCount[0]}-${spawnCount[1]}`;
+}
+
+function getWaveSummary(wave) {
+    const config = getWaveConfig(wave);
+    return `第 ${wave} 层 · ${config.duration}s · 每组 ${formatSpawnCount(config.spawnCount)} 只`;
+}
 
 
 let particles = [];
 // === 统一浮球轨道设置 ===
 const FLOATING_ORBIT_RADIUS = 70;     // 所有球使用相同半径（可改）
-const FLOATING_ORBIT_SPEED  = 0.08;   // 鸡煲的球统一旋转速度
+const FLOATING_ORBIT_SPEED  = 0.045;  // 降低蓝皮人浮球转速
 let floatingOrbitAngle = 0;           // 全局基准角
 let meleeOrbitAngle = 0;             // 旋转剑的基准角
 const MELEE_ROTATION_SPEED = 0.05; 
@@ -1350,7 +1484,7 @@ function bindTooltipDelegation(container){
 function openShop() {
     gamePaused = true;
     document.getElementById('pauseMenu').style.display = 'none';
-    document.getElementById('shopMenu').style.display = 'block';
+    document.getElementById('shopMenu').style.display = 'flex';
 
     // 每次打开都刷新商品（从生成函数获取）
     const shopItems = generateShopItems();  // 获取生成的商品列表
@@ -1359,34 +1493,43 @@ function openShop() {
 
     // 更新金币数目
     document.getElementById('playerCoins').textContent = coins;
+    document.getElementById('shopRefreshBtn').textContent = `刷新 ${shopRefreshCost}金币`;
 
     // 渲染商店物品
     shopItems.forEach((item) => {
         const div = document.createElement('div');
-        div.className = `shopItem ${item.rarity}`;
+        const alreadyOwnedUnique = item.isRelic
+            && relicTypes[item.key]?.category === 'unique'
+            && player.relics.some(r => r.key === item.key);
+        const canAfford = coins >= item.cost;
+        const canBuy = canAfford && !alreadyOwnedUnique;
+
+        div.className = `shopItem ${item.rarity}${canBuy ? '' : ' locked'}${alreadyOwnedUnique ? ' soldOut' : ''}`;
 
         let rarityText = '普通';
-        if (item.rarity === 'rare') rarityText = '稀有 (蓝)';
-        if (item.rarity === 'legendary') rarityText = '传说 (金)';
+        if (item.rarity === 'rare') rarityText = '稀有';
+        if (item.rarity === 'legendary') rarityText = '传说';
 
         div.innerHTML = `
-            <h3>${item.name}${item.isRelic ? '（遗物）' : ''}</h3>
-            <p>${item.desc || (item.isRelic ? '神秘的遗物' : '一种有用的武器')}</p>
+            <div class="shopItemTop">
+                <span class="shopCorner ${item.rarity}">${item.isRelic ? '遗物' : '武器'}</span>
+                <span class="rarity ${item.rarity}">${rarityText}</span>
+            </div>
+            <h3>${item.name}</h3>
+            <p class="shopDesc">${item.desc || (item.isRelic ? '神秘的遗物' : '一种有用的武器')}</p>
             ${item.lore ? `<p class="lore">${item.lore}</p>` : ''}
-            <div class="price">价格：${item.cost} 金币</div>
-            <div class="rarity">稀有度：${rarityText}</div>
+            <div class="shopItemFoot">
+                <span class="price">${item.cost} 金币</span>
+            </div>
         `;
-
-        // 余额不足时禁用点击和改变样式
-        if (coins < item.cost) {
-            div.style.opacity = '0.6';
-            div.style.filter = 'grayscale(30%)';
-            div.style.cursor = 'not-allowed';
-        }
 
         // 点击购买商品
         div.onclick = () => {
-            if (coins < item.cost) {
+            if (alreadyOwnedUnique) {
+                alert('这个唯一遗物你已经拥有了。');
+                return;
+            }
+            if (!canAfford) {
                 alert('你的钱不够啊！');
                 return;
             }
@@ -1397,34 +1540,34 @@ function openShop() {
 }
 
 function buyItem(item) {
-    if (coins >= item.cost) {
-        coins -= item.cost;
-        playPickupSound();
-        document.getElementById('playerCoins').textContent = coins;
-
-        if (item.isRelic) {
-            // 🎁 购买遗物
-            const relic = relicTypes[item.key];
-            if (relic && relic.applyOnPickup) relic.applyOnPickup();
-
-            player.relics.push({
-                key: item.key,
-                name: item.name,
-                desc: item.desc,
-                rarity: item.rarity
-            });
-        } else {
-            // 🔫 购买武器
-            const newWeapon = JSON.parse(JSON.stringify(weaponTypes[item.key]));
-            newWeapon.lastFire = 0;
-            player.weapons.push(newWeapon);
-        }
-
-        updateUI();
-        openShop(); // 刷新商店
-    } else {
+    if (coins < item.cost) {
         alert('你的钱不够啊！');
+        return;
     }
+
+    let acquired = false;
+
+    if (item.isRelic) {
+        acquired = equipRelicByKey(item.key);
+        if (!acquired) {
+            alert('这个唯一遗物你已经拥有了。');
+            return;
+        }
+    } else {
+        const newWeapon = cloneWeaponByKey(item.key);
+        if (newWeapon) {
+            player.weapons.push(newWeapon);
+            acquired = true;
+        }
+    }
+
+    if (!acquired) return;
+
+    coins -= item.cost;
+    playPickupSound();
+    document.getElementById('playerCoins').textContent = coins;
+    updateUI();
+    openShop(); // 刷新商店
 }
 
 function closeShop() {
@@ -1432,7 +1575,9 @@ function closeShop() {
     gamePaused = false;
     if (!waveOngoing && currentWave < maxWaves) {
         currentWave++;
-        waveTimer = waveDurations[currentWave - 1];
+        const nextWaveConfig = getWaveConfig(currentWave);
+        waveTimer = nextWaveConfig.duration;
+        enemySpawnRate = nextWaveConfig.spawnInterval;
         waveOngoing = true;
     } else if (currentWave >= maxWaves) {
         // 游戏结束判断：你也可以改成Boss战等
@@ -1568,7 +1713,9 @@ function draw() {
         
         if (img && img.complete) {
             const size = enemy.radius * 2.5;
-            const facingRight = enemy.vx > 0;
+            const shouldFlipSprite = enemy.type === 'slime'
+                ? enemy.vx < 0
+                : enemy.vx > 0;
             
             // ✅ 创建临时离屏画布（只在需要 isHit 时才用）
             if (enemy.isHit) {
@@ -1579,7 +1726,7 @@ function draw() {
                 tempCtx.imageSmoothingEnabled = false;
                 
                 // 在离屏画布绘制敌人
-                if (facingRight) {
+                if (shouldFlipSprite) {
                     tempCtx.translate(size / 2, size / 2);  // 移到中心
                     tempCtx.scale(-1, 1);
                     tempCtx.drawImage(img, -size / 2, -size / 2, size, size);
@@ -1601,7 +1748,7 @@ function draw() {
                 // 正常绘制（无遮罩）
                 ctx.save();
                 ctx.imageSmoothingEnabled = false;
-                if (facingRight) {
+                if (shouldFlipSprite) {
                     ctx.translate(enemy.x, enemy.y);
                     ctx.scale(-1, 1);
                     ctx.drawImage(img, -size / 2, -size / 2, size, size);
@@ -1683,7 +1830,7 @@ function gameLoop() {
 
         if (frameCount % 60 === 0) {
             gameTime++;
-            enemySpawnRate = Math.max(20, 60 - currentWave * 5); // 刷怪率
+            enemySpawnRate = getWaveConfig().spawnInterval;
             waveTimer--;
 
             if (waveOngoing) {
@@ -1706,6 +1853,7 @@ function gameLoop() {
         }   
         // —— 刷怪块（按刷新间隔执行）——
         if (waveOngoing && frameCount % enemySpawnRate === 0) {
+            const waveConfig = getWaveConfig();
             if (currentWave === 10) {
                 // 只生成一次Boss
                 if (!bossSpawned) {
@@ -1713,12 +1861,12 @@ function gameLoop() {
                     bossSpawned = true;
                 }
                 // ★ 极低概率刷小怪（你可微调概率/频率）
-                if (Math.random() < 0.1) { // 约10%几率
+                if (Math.random() < (waveConfig.bossMinionChance || 0)) {
                     spawnEnemy();
                 }
             } else {
                 // 普通波：成群生成
-                const enemiesPerSpawn = currentWave >= 5 ? 2 + Math.floor(currentWave / 3) : 1; // 每次生成几个怪物
+                const enemiesPerSpawn = getWaveSpawnCount();
                 for (let i = 0; i < enemiesPerSpawn; i++) {
                     spawnEnemy();
                 }

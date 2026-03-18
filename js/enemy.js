@@ -18,75 +18,94 @@ enemyImages.kakkaFrozen.src = './image/kakka_frozen.png';
 enemyImages.sentry.src = './image/sentry.png';
 enemyImages.sentryFrozen.src = './image/sentry_frozen.png';
 
+const ENEMY_TYPES = {
+    louse: {
+        health: 46,
+        damage: 4,
+        speed: 0.62,
+        radius: 25,
+        color: '#88da25ff',
+        hitCooldownFrames: 60
+    },
+    slime: {
+        health: 72,
+        damage: 5,
+        speed: 0.82,
+        radius: 16,
+        color: '#2c864dff',
+        hitCooldownFrames: 55
+    },
+    kakka: {
+        health: 34,
+        damage: 5,
+        speed: 1.15,
+        radius: 15,
+        color: '#5ac0dc',
+        hitCooldownFrames: 60
+    },
+    sentry: {
+        health: 240,
+        damage: 15,
+        speed: 0.45,
+        radius: 30,
+        color: '#17dee1ff',
+        hitCooldownFrames: 75
+    }
+};
+
+function pickEnemyTypeForWave() {
+    const config = typeof getWaveConfig === 'function' ? getWaveConfig() : null;
+    const enemyPool = config?.enemyPool || [{ type: 'louse', weight: 1 }];
+    const totalWeight = enemyPool.reduce((sum, entry) => sum + entry.weight, 0);
+    let roll = Math.random() * totalWeight;
+
+    for (const entry of enemyPool) {
+        roll -= entry.weight;
+        if (roll <= 0) return entry.type;
+    }
+
+    return enemyPool[enemyPool.length - 1].type;
+}
+
+function getEnemyStats(enemyType) {
+    const baseStats = ENEMY_TYPES[enemyType] || ENEMY_TYPES.louse;
+    const waveIndex = Math.max(0, currentWave - 1);
+    const healthScale = 1 + waveIndex * 0.16;
+    const damageScale = 1 + waveIndex * 0.09;
+    const speedScale = 1 + Math.min(0.18, waveIndex * 0.025);
+
+    return {
+        health: Math.round(baseStats.health * healthScale),
+        damage: Math.round(baseStats.damage * damageScale),
+        speed: Number((baseStats.speed * speedScale).toFixed(2)),
+        radius: baseStats.radius,
+        color: baseStats.color,
+        hitCooldownFrames: baseStats.hitCooldownFrames
+    };
+}
+
 
 function spawnEnemy() {
     const angle = Math.random() * Math.PI * 2;
     const distance = 400;
     const x = player.x + Math.cos(angle) * distance;
     const y = player.y + Math.sin(angle) * distance;
-
-    // 根据波数决定生成哪种怪物
-    let enemyType = 'louse';
-
-
-    if (currentWave >= 5 && Math.random() < 0.3) {
-        enemyType = 'kakka';
-    }
-    if (currentWave >= 7 && Math.random() < 0.1) {
-        enemyType = 'sentry';
-    }
-
-    let health, speed, damage, color;
-
-    switch (enemyType) {
-        case 'kakka':
-            health = 30;
-            damage = 4;
-            speed = 3.0;
-            radius = 15;
-            color = '#5ac0dc';
-            break;
-        case 'sentry':
-            health = 500;
-            damage = 30;
-            speed = 0.5;
-            radius = 30;
-            color = '#17dee1ff';
-            break;
-        case 'slime':
-            health = 60;
-            damage = 5;
-            speed = 1.0;
-            radius = 15;
-            color = '#2c864dff';
-            break;
-        case 'louse':
-            health = 60;
-            damage = 5;
-            speed = 0.7;
-            radius = 25;
-            color = '#88da25ff';
-            break;
-        default:
-            const timeMultiplier = 1 + (gameTime / 60);
-            health = (baseEnemyHealth + level * 10) * timeMultiplier;
-            damage = (baseEnemyDamage + level);
-            speed = 1.0;
-            radius = 8;
-            color = '#ff00ff';
-    }
+    const enemyType = pickEnemyTypeForWave();
+    const stats = getEnemyStats(enemyType);
 
     enemies.push({
         x, y,
         vx: 0, vy: 0,
-        radius: radius,
-        health, maxHealth: health,
-        damage, speed,
+        radius: stats.radius,
+        health: stats.health,
+        maxHealth: stats.health,
+        damage: stats.damage,
+        speed: stats.speed,
         frozen: false, frozenTime: 0,
         nextHitFrame: 0,
-        hitCooldownFrames: 60,
+        hitCooldownFrames: stats.hitCooldownFrames,
         type: enemyType,
-        color
+        color: stats.color
     });
 }
 
@@ -95,17 +114,18 @@ function spawnBoss() {
         x: canvas.width / 2 + 200 * (Math.random() - 0.5),
         y: canvas.height / 2 + 200 * (Math.random() - 0.5),
         vx: 0, vy: 0,
-        radius: 30,
-        health: 20000,
-        maxHealth: 20000,
-        damage: 30,
-        speed: 1.2,
+        radius: 36,
+        health: 12000,
+        maxHealth: 12000,
+        damage: 22,
+        speed: 0.9,
         frozen: false,
         frozenTime: 0,
         color: '#ff0000',
+        type: 'sentry',
         isBoss: true,
         nextHitFrame: 0,
-        hitCooldownFrames: 30
+        hitCooldownFrames: 40
     });
 }
 

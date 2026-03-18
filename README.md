@@ -1,30 +1,76 @@
-<div align="center">
+# SpireSiblings
+## 尖塔兄弟
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:f5c2e7,50:cba6f7,100:89dceb&height=130&section=header" width="100%"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Nunito&weight=700&size=26&duration=3000&pause=800&color=cba6f7&center=true&vCenter=true&width=500&height=45&lines=hi+i'm+igloomatics+🌸;AI+student+%2F+game+dev+🎮;vaporwave+%26+math+nerd+📐" />
+杀戮尖塔(Slay The Spire)的类幸存者同人游戏，采用`HTML + CSS + JavaScript` 制作。
 
-<br/>
+玩家可以选择不同英雄，在多波次战斗中击败敌人、拾取经验与金币、升级属性，并在商店中购买武器与遗物来构筑流派。
 
-[![Blog](https://img.shields.io/badge/✦_igloomatics.vercel.app-f5c2e7?style=flat-square&logoColor=313244)](https://igloomatics.vercel.app/)&nbsp;
-![views](https://komarev.com/ghpvc/?username=igloomatics&color=cba6f7&style=flat-square&label=✦+views)
+## 游戏特点
 
-<br/>
+- 4 个可选角色(红裤衩,猎宝,鸡煲,紫皮人)，带有不同初始武器与遗物
+- 多种武器类型：远程、近战、浮球
+- 多种敌人与波次配置，包含首领战
+- 升级、祝福、商店、遗物、掉落等完整循环
+- 纯前端实现，无需构建工具
 
+## 玩法概览
+
+- 在开局选择英雄
+- 击败敌人，收集经验和金币
+- 升级时从随机强化中选择一项
+- 每波结束进入商店，购买武器或遗物
+- 挺过所有波次并完成最终首领阶段
+
+## 操作方式
+
+- `W / A / S / D` 或方向键：移动
+- `Esc` / `P`：暂停
+
+游戏中的攻击为自动触发，主要决策点在于走位、升级选择和商店购买。
+
+## 运行方式
+
+### 方式一：直接打开
+
+直接用浏览器打开根目录下的 `index.html` 即可运行。
+
+### 方式二：本地静态服务
+
+如果你希望以本地服务方式运行，可以在项目根目录执行：
+
+```bash
+python3 -m http.server 8000
 ```
- learning AI 🤖  ·  building worlds in Unity 🎮  ·  writing proofs in LaTeX 📐
-        vibing to vaporwave 🌊  ·  [ sleep: false ]
+
+然后访问：`http://127.0.0.1:8000`
+
+## 项目结构
+
+```text
+SpireSiblings/
+├── index.html      # 主游戏逻辑与页面结构
+├── style.css       # UI 与界面样式
+├── js/
+│   ├── enemy.js    # 敌人生成、敌人属性、敌人行为
+│   ├── weapon.js   # 武器定义、攻击逻辑、弹道与碰撞
+│   ├── relic.js    # 遗物定义与效果
+│   └── sound.js    # 音效资源与播放逻辑
+└── image/          # 角色、敌人及相关素材
 ```
 
-<br/>
+## 当前内容
 
-<img src="https://skillicons.dev/icons?i=py,git,latex,unity&theme=light&perline=4" height="36"/>
+- 英雄选择界面
+- 祝福选择
+- 实时战斗
+- 武器系统
+- 遗物系统
+- 升级系统
+- 商店系统
+- 波次与 Boss
 
-<br/><br/>
 
-<img src="https://github-readme-stats.vercel.app/api?username=igloomatics&show_icons=true&hide_border=true&bg_color=fff0f5&title_color=cba6f7&text_color=6c6f85&icon_color=f5c2e7&count_private=true&rank_icon=github" height="150"/>
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=igloomatics&layout=compact&hide_border=true&bg_color=fff0f5&title_color=cba6f7&text_color=6c6f85&langs_count=5" height="150"/>
+## 许可证
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:89dceb,50:cba6f7,100:f5c2e7&height=80&section=footer" width="100%"/>
-
-</div>
+本项目基于 `MIT License` 开源，详见 `LICENSE`。
